@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/gofiber/contrib/websocket"
@@ -12,17 +11,26 @@ func (s *Server) initRoutes() {
 }
 
 func (s *Server) initSocket() {
-
 	s.app.Get("/ws", websocket.New(func(c *websocket.Conn) {
-		fmt.Println(c.Locals("Host"))
+		s.db.Clients[c] = true
+		defer func() { //Porperly close connection
+			delete(s.db.Clients, c)
+			c.Close()
+		}()
+
 		for {
 			mt, msg, err := c.ReadMessage()
 			if err != nil {
 				log.Println("read:", err)
 				break
 			}
-			log.Printf("recv: %s", msg)
-			err = c.WriteMessage(mt, msg)
+			log.Printf("recv %v: %s", mt, msg)
+			for k := range s.db.Clients {
+				err = k.WriteMessage(mt, msg)
+				if err != nil {
+					break
+				}
+			}
 			if err != nil {
 				log.Println("write:", err)
 				break

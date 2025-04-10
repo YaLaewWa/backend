@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"socket/internal/database"
 
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
@@ -18,6 +19,7 @@ type Config struct {
 type Server struct {
 	app    *fiber.App
 	config Config
+	db     *database.Database
 }
 
 func NewServer(config Config) *Server {
@@ -30,9 +32,12 @@ func NewServer(config Config) *Server {
 		DisableStartupMessage: true,
 	})
 
+	db := database.NewDatabase()
+
 	return &Server{
 		app:    app,
 		config: config,
+		db:     db,
 	}
 }
 
