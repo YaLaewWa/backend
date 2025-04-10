@@ -18,13 +18,17 @@ func (s *Server) initSocket() {
 			c.Close()
 		}()
 
+		for index := range s.db.Message { // send old message to the new user
+			c.WriteMessage(1, s.db.Message[index])
+		}
+
 		for {
 			mt, msg, err := c.ReadMessage()
 			if err != nil {
 				log.Println("read:", err)
 				break
 			}
-			log.Printf("recv %v: %s", mt, msg)
+			s.db.Message = append(s.db.Message, msg)
 			for k := range s.db.Clients {
 				err = k.WriteMessage(mt, msg)
 				if err != nil {

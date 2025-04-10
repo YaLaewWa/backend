@@ -6,12 +6,12 @@ import (
 
 type Database struct {
 	Clients map[*websocket.Conn]bool
-	Message []string
+	Message [][]byte
 }
 
 func NewDatabase() *Database { //Just a mock dont kill me
 	clients := make(map[*websocket.Conn]bool)
-	var message []string
+	var message [][]byte
 	db := &Database{clients, message}
 	return db
 }
