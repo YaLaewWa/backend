@@ -25,13 +25,7 @@ jobs:
           SSH_KNOWN_HOSTS: ${{secrets.SSH_HOST}}
       - name: Deploy
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-            cd ${{ secrets.WORK_DIR }}
-            docker build --tag ${{ secrets.DOCKER_TAG }} .
-            docker stop ${{ secrets.DOCKER_IMAGE }} || true
-            docker rm ${{ secrets.DOCKER_IMAGE }} || true
-            docker run --name ${{ secrets.DOCKER_IMAGE }} -d -p ${{ secrets.PORT }} ${{ secrets.DOCKER_TAG }}
-          EOF
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git pull origin main && docker build --tag ${{ secrets.DOCKER_TAG }} . && docker stop ${{ secrets.DOCKER_IMAGE }} || true && docker rm ${{ secrets.DOCKER_IMAGE }} || true && docker run --name ${{ secrets.DOCKER_IMAGE }} -d -p ${{ secrets.PORT }} ${{ secrets.DOCKER_TAG }} && exit"
       - name: Clean up
         run:
          rm -rf ~/.ssh
