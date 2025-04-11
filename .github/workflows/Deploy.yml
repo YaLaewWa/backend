@@ -1,12 +1,14 @@
 name: Deploy
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - main
 
 jobs:
   Deploy-Production:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Setup SSH and known_hosts
