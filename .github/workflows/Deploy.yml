@@ -24,7 +24,7 @@ jobs:
           SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}  
       - name: Deploy
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git pull origin main && docker build --tag socket. && (docker stop backSocket || true) && (docker rm backSocket || true) && docker run --name backSocket -d -p ${{ secrets.PORT }} socket && exit"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git pull origin main && (docker stop backSocket || true) && (docker rm backSocket || true) && docker build --tag socket. && docker run --name backSocket -d -p ${{ secrets.PORT }} socket && exit"
       - name: Clean up
         run:
          rm -rf ~/.ssh
