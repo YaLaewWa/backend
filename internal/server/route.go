@@ -19,7 +19,10 @@ func (s *Server) initSocket() {
 		}()
 
 		for index := range s.db.Message { // send old message to the new user
-			c.WriteMessage(1, s.db.Message[index])
+			err := c.WriteMessage(1, s.db.Message[index])
+			if err != nil {
+				break
+			}
 		}
 
 		for {
