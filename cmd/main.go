@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"socket/internal/config"
@@ -16,4 +17,5 @@ func main() {
 
 	s := server.NewServer(config.Server)
 	s.Start(ctx, stop)
+	fmt.Println("test")
 }
