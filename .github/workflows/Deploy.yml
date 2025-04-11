@@ -9,6 +9,10 @@ jobs:
   Deploy-Production:
     runs-on: ubuntu-latest
     steps:
+      - name: Add host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
       - name: Create SSH key
         run: |
           mkdir -p ~/.ssh/
