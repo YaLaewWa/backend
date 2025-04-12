@@ -1,9 +1,9 @@
 
 build:
-	go build -o bin/server ./cmd/server/main.go
+	go build -o bin/server ./cmd/server/init/main.go
 
 run: 
-	go run ./cmd/main.go
+	go run ./cmd/init/main.go
 
 clean:
 	rm -rf bin/server
@@ -13,5 +13,8 @@ deps:
 
 lint:
 	golangci-lint run
+
+migrate:
+	go run ./cmd/migrate/main.go
 
 .DEFAULT_GOAL = run

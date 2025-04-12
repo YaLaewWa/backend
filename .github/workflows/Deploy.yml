@@ -22,9 +22,15 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
           SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}  
+      - name: pull
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git pull origin main && exit"
+      - name: Migrate DB
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && make migrate && exit"
       - name: Deploy
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git pull origin main && (docker stop backSocket || true) && (docker rm backSocket || true) && docker build --tag socket . && docker run --name backSocket -d -p ${{ secrets.PORT }} socket && exit"
+           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && (docker stop backSocket || true) && (docker rm backSocket || true) && docker build --tag socket . && docker run --name backSocket -d -p ${{ secrets.PORT }} socket && exit"
       - name: Clean up
         run:
          rm -rf ~/.ssh

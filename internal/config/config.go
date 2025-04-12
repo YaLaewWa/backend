@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"socket/internal/database"
 	"socket/internal/server"
 
 	"github.com/caarlos0/env/v11"
@@ -9,7 +10,8 @@ import (
 )
 
 type AppConfig struct {
-	Server server.Config `envPrefix:"SERVER_"`
+	Server server.Config   `envPrefix:"SERVER_"`
+	DB     database.Config `envPrefix:"DB_"`
 }
 
 // Load configs from .env file
