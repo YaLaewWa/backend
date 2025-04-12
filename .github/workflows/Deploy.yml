@@ -22,7 +22,7 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
           SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}  
-      - name: pull
+      - name: Pull
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git pull origin main && exit"
       - name: Migrate DB

@@ -17,6 +17,7 @@ func main() {
 	db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";")
 	err = db.AutoMigrate(
 		&domain.Sample{},
+		&domain.User{},
 	)
 	if err != nil {
 		log.Fatalf("Migration failed: %v", err)
