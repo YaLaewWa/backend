@@ -22,7 +22,7 @@ func (r *UserRepository) Create(user *domain.User) error {
 
 	exitsUser := r.db.Model(&domain.User{}).Where("username = ?", user.Username).First(&domain.User{})
 	if exitsUser.RowsAffected > 0 {
-		return apperror.BadRequestError(errors.New("username already exists"), "username already exists")
+		return apperror.ConflictError(errors.New("username already exists"), "username already exists")
 	}
 
 	err := r.db.Create(&user).Error
