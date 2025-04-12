@@ -6,6 +6,8 @@ import (
 	"log"
 	"socket/internal/database"
 
+	apperror "socket/pkg"
+
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -32,6 +34,7 @@ func NewServer(config Config, pgDB *gorm.DB) *Server {
 		JSONEncoder:           json.Marshal,
 		JSONDecoder:           json.Unmarshal,
 		DisableStartupMessage: true,
+		ErrorHandler:          apperror.ErrorHandler,
 	})
 
 	db := database.NewDatabase()
