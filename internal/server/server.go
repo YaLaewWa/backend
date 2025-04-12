@@ -20,10 +20,13 @@ type Config struct {
 }
 
 type Server struct {
-	app    *fiber.App
-	config Config
-	db     *database.Database
-	pgDB   *gorm.DB
+	app        *fiber.App
+	config     Config
+	db         *database.Database
+	pgDB       *gorm.DB
+	repository *Repository
+	service    *Service
+	handler    *Handler
 }
 
 func NewServer(config Config, pgDB *gorm.DB) *Server {
@@ -50,6 +53,9 @@ func NewServer(config Config, pgDB *gorm.DB) *Server {
 func (s *Server) Start(ctx context.Context, stop context.CancelFunc) {
 	//init services
 	s.initRoutes()
+	s.initRepository()
+	s.initService()
+	s.initHandler()
 
 	// start server
 	go func() {
