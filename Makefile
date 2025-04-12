@@ -14,4 +14,7 @@ deps:
 lint:
 	golangci-lint run
 
+migrate:
+	go run ./cmd/migrate/main.go
+
 .DEFAULT_GOAL = run
