@@ -13,7 +13,7 @@ import (
 type AppConfig struct {
 	Server server.Config   `envPrefix:"SERVER_"`
 	DB     database.Config `envPrefix:"DB_"`
-	Jwt    util.JWTConfig
+	Jwt    util.JWTConfig  `envPrefix:"JWT_"`
 }
 
 // Load configs from .env file
