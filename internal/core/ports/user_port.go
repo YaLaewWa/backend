@@ -13,7 +13,7 @@ type UserHandler interface {
 }
 
 type UserService interface {
-	Register(c *fiber.Ctx) error
+	Register(userName, password string) error
 	Login(userName, password string) (*domain.User, string, error)
 }
 

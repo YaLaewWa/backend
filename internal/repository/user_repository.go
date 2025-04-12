@@ -3,7 +3,7 @@ package repository
 import (
 	"socket/internal/core/domain"
 	"socket/internal/core/ports"
-	apperror "socket/pkg"
+	"socket/pkg/apperror"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
