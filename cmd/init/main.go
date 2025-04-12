@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"socket/internal/config"
@@ -17,7 +17,7 @@ func main() {
 	defer stop()
 	db, err := database.New(config.DB)
 	if err != nil {
-		fmt.Println("Error to init db")
+		log.Fatalf("Failed to init  DB err: %v", err)
 	}
 	s := server.NewServer(config.Server, db)
 	s.Start(ctx, stop)

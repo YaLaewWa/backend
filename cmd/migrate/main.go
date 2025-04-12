@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"socket/internal/config"
 	"socket/internal/core/domain"
 	"socket/internal/database"
@@ -18,7 +19,7 @@ func main() {
 		&domain.Sample{},
 	)
 	if err != nil {
-		fmt.Println("Cannot auto migrate")
+		log.Fatalf("Migration failed: %v", err)
 	} else {
 		fmt.Println("Migrate Successfully")
 	}
