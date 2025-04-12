@@ -8,6 +8,7 @@ import (
 	"socket/internal/config"
 	"socket/internal/database"
 	"socket/internal/server"
+	"socket/pkg/util"
 	"syscall"
 )
 
@@ -19,6 +20,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to init  DB err: %v", err)
 	}
-	s := server.NewServer(config.Server, db)
+	jwt := util.NewJWTUtils(&config.Jwt)
+	s := server.NewServer(config.Server, db, jwt)
 	s.Start(ctx, stop)
 }

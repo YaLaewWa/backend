@@ -10,7 +10,7 @@ type Service struct {
 }
 
 func (s *Server) initService() {
-	userService := services.NewUserService(s.repository.userRepository)
+	userService := services.NewUserService(s.repository.userRepository, s.jwt)
 	s.service = &Service{
 		userService: userService,
 	}

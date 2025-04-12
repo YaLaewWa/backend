@@ -11,11 +11,11 @@ import (
 
 type UserService struct {
 	repo ports.UserRepository
-	jwt  util.JWTUtils
+	jwt  *util.JWTUtils
 }
 
-func NewUserService(repo ports.UserRepository) ports.UserService {
-	return &UserService{repo: repo}
+func NewUserService(repo ports.UserRepository, jwt *util.JWTUtils) ports.UserService {
+	return &UserService{repo: repo, jwt: jwt}
 }
 
 func (s *UserService) Register(userName, password string) error {
@@ -36,12 +36,9 @@ func (s *UserService) Login(userName, password string) (*domain.User, string, er
 	if err != nil {
 		return nil, "", err
 	}
-	hashedPasswordByte, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return nil, "", apperror.InternalServerError(err, "cannot use this password")
-	}
-	if string(hashedPasswordByte) != user.Password {
-		return nil, "", apperror.BadRequestError(err, "username or password is incorrect")
+	compareErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if compareErr != nil {
+		return nil, "", apperror.UnauthorizedError(compareErr, "invalid email or password.")
 	}
 	jwt, err := s.jwt.GenerateJWT(user.ID)
 	if err != nil {

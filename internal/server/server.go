@@ -7,6 +7,7 @@ import (
 	"socket/internal/database"
 
 	"socket/pkg/apperror"
+	"socket/pkg/util"
 
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
@@ -27,9 +28,10 @@ type Server struct {
 	repository *Repository
 	service    *Service
 	handler    *Handler
+	jwt        *util.JWTUtils
 }
 
-func NewServer(config Config, pgDB *gorm.DB) *Server {
+func NewServer(config Config, pgDB *gorm.DB, jwt *util.JWTUtils) *Server {
 
 	app := fiber.New(fiber.Config{
 		AppName:               config.Name,
@@ -47,15 +49,16 @@ func NewServer(config Config, pgDB *gorm.DB) *Server {
 		config: config,
 		db:     db,
 		pgDB:   pgDB,
+		jwt:    jwt,
 	}
 }
 
 func (s *Server) Start(ctx context.Context, stop context.CancelFunc) {
 	//init services
-	s.initRoutes()
 	s.initRepository()
 	s.initService()
 	s.initHandler()
+	s.initRoutes()
 
 	// start server
 	go func() {

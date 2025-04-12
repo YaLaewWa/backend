@@ -4,6 +4,7 @@ import (
 	"log"
 	"socket/internal/database"
 	"socket/internal/server"
+	"socket/pkg/util"
 
 	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
@@ -12,6 +13,7 @@ import (
 type AppConfig struct {
 	Server server.Config   `envPrefix:"SERVER_"`
 	DB     database.Config `envPrefix:"DB_"`
+	Jwt    util.JWTConfig
 }
 
 // Load configs from .env file
