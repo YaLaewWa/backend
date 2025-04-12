@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"socket/internal/database"
 	"socket/internal/hub"
 
 	"socket/pkg/apperror"
@@ -24,7 +23,6 @@ type Config struct {
 type Server struct {
 	app        *fiber.App
 	config     Config
-	db         *database.Database
 	pgDB       *gorm.DB
 	repository *Repository
 	service    *Service
@@ -44,12 +42,9 @@ func NewServer(config Config, pgDB *gorm.DB, jwt *util.JWTUtils) *Server {
 		ErrorHandler:          apperror.ErrorHandler,
 	})
 
-	db := database.NewDatabase()
-
 	return &Server{
 		app:        app,
 		config:     config,
-		db:         db,
 		pgDB:       pgDB,
 		jwt:        jwt,
 		messageHub: hub.NewHub(),

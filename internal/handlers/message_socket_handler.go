@@ -3,7 +3,6 @@ package handlers
 import (
 	"log"
 	"socket/internal/core/ports"
-	"socket/internal/database"
 	"socket/internal/hub"
 
 	"github.com/gofiber/contrib/websocket"
@@ -12,11 +11,10 @@ import (
 
 type MessageSocketHandler struct {
 	hub *hub.Hub
-	db  *database.Database //TODO change to some service in the future when out database is not a single slice ;)
 }
 
-func NewMessageSocketHandler(hub *hub.Hub, db *database.Database) ports.MessageSocketHandler {
-	return &MessageSocketHandler{hub, db}
+func NewMessageSocketHandler(hub *hub.Hub) ports.MessageSocketHandler {
+	return &MessageSocketHandler{hub}
 }
 
 func (h MessageSocketHandler) InitConnection(c *websocket.Conn) {
@@ -28,14 +26,6 @@ func (h MessageSocketHandler) InitConnection(c *websocket.Conn) {
 		ID:      id,
 	}
 	h.hub.Register <- payload //register new connection to hub
-
-	for index := range h.db.Message { // send old message to the new user
-		err := c.WriteMessage(1, h.db.Message[index])
-		if err != nil {
-			log.Println("read:", err)
-			break
-		}
-	}
 
 	go h.readPump(c, id, closeConnection)
 	go h.writePump(c, hubChannel)
@@ -60,7 +50,6 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, id uuid.UUID, close ch
 			log.Println("read:", err)
 			break
 		}
-		h.db.Message = append(h.db.Message, msg)
 		h.hub.Broadcast <- msg
 	}
 }
