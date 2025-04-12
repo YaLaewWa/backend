@@ -18,7 +18,7 @@ func NewUserHandler(service ports.UserService) ports.UserHandler {
 }
 
 func (h *UserHandler) Register(c *fiber.Ctx) error {
-	user := new(dto.RegisterRequestBody)
+	user := new(dto.AuthBody)
 	err := c.BodyParser(&user)
 	if err != nil {
 		return apperror.BadRequestError(err, "your request is invalid")
@@ -38,7 +38,7 @@ func (h *UserHandler) Register(c *fiber.Ctx) error {
 }
 
 func (h *UserHandler) Login(c *fiber.Ctx) error {
-	body := new(dto.LoginRequestBody)
+	body := new(dto.AuthBody)
 	err := c.BodyParser(&body)
 	if err != nil {
 		return apperror.BadRequestError(err, "your request is invalid")

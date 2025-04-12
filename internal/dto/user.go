@@ -9,12 +9,7 @@ type UserWithTokenResponse struct {
 	Token string        `json:"accessToken"`
 }
 
-type RegisterRequestBody struct {
-	Password string `json:"password" validate:"required"`
-	UserName string `json:"username" validate:"required"`
-}
-
-type LoginRequestBody struct {
-	Password string `json:"password" validate:"required"`
-	UserName string `json:"username" validate:"required"`
+type AuthBody struct {
+	Password string `json:"password" validate:"required,min=9"`
+	UserName string `json:"username" validate:"required,min=4"`
 }
