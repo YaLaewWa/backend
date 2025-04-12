@@ -8,6 +8,7 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 type Config struct {
@@ -20,9 +21,10 @@ type Server struct {
 	app    *fiber.App
 	config Config
 	db     *database.Database
+	pgDB   *gorm.DB
 }
 
-func NewServer(config Config) *Server {
+func NewServer(config Config, pgDB *gorm.DB) *Server {
 
 	app := fiber.New(fiber.Config{
 		AppName:               config.Name,
@@ -38,6 +40,7 @@ func NewServer(config Config) *Server {
 		app:    app,
 		config: config,
 		db:     db,
+		pgDB:   pgDB,
 	}
 }
 
