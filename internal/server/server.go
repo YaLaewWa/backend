@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"socket/internal/database"
+	"socket/internal/hub"
 
 	"socket/pkg/apperror"
 	"socket/pkg/util"
@@ -29,6 +30,7 @@ type Server struct {
 	service    *Service
 	handler    *Handler
 	jwt        *util.JWTUtils
+	messageHub *hub.Hub
 }
 
 func NewServer(config Config, pgDB *gorm.DB, jwt *util.JWTUtils) *Server {
@@ -45,11 +47,12 @@ func NewServer(config Config, pgDB *gorm.DB, jwt *util.JWTUtils) *Server {
 	db := database.NewDatabase()
 
 	return &Server{
-		app:    app,
-		config: config,
-		db:     db,
-		pgDB:   pgDB,
-		jwt:    jwt,
+		app:        app,
+		config:     config,
+		db:         db,
+		pgDB:       pgDB,
+		jwt:        jwt,
+		messageHub: hub.NewHub(),
 	}
 }
 
@@ -59,6 +62,7 @@ func (s *Server) Start(ctx context.Context, stop context.CancelFunc) {
 	s.initService()
 	s.initHandler()
 	s.initRoutes()
+	go s.messageHub.Run()
 
 	// start server
 	go func() {

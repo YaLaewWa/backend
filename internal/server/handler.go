@@ -6,12 +6,15 @@ import (
 )
 
 type Handler struct {
-	userHandler ports.UserHandler
+	userHandler          ports.UserHandler
+	socketMessageHandler ports.MessageSocketHandler
 }
 
 func (s *Server) initHandler() {
 	userHandler := handlers.NewUserHandler(s.service.userService)
+	socketMessageHandler := handlers.NewMessageSocketHandler(s.messageHub, s.db)
 	s.handler = &Handler{
-		userHandler: userHandler,
+		userHandler:          userHandler,
+		socketMessageHandler: socketMessageHandler,
 	}
 }
