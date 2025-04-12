@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"socket/internal/dto"
 	"time"
 
 	"github.com/google/uuid"
@@ -12,4 +13,11 @@ type User struct {
 	UpdateAt time.Time `gorm:"autoUpdateTime"`
 	Username string    `gorm:"unique" validate:"required"`
 	Password string    `validate:"required,min=8"`
+}
+
+func (u *User) ToDTO() *dto.UserResponse {
+	dto := &dto.UserResponse{
+		Username: u.Username,
+	}
+	return dto
 }
