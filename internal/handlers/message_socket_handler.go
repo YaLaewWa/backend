@@ -22,6 +22,7 @@ func NewMessageSocketHandler(hub *hub.Hub, db *database.Database) ports.MessageS
 func (h MessageSocketHandler) InitConnection(c *websocket.Conn) {
 	id := uuid.New()                     //TODO: change to user id in the future
 	hubChannel := make(chan []byte, 256) //buffer up to 256 strings
+	closeConnection := make(chan bool)
 	payload := &hub.RegisterPayload{
 		Channel: hubChannel,
 		ID:      id,
@@ -36,15 +37,20 @@ func (h MessageSocketHandler) InitConnection(c *websocket.Conn) {
 		}
 	}
 
-	go h.readPump(c, id)
+	go h.readPump(c, id, closeConnection)
 	go h.writePump(c, hubChannel)
-
+	for {
+		if <-closeConnection {
+			break
+		}
+	}
 }
 
-func (h MessageSocketHandler) readPump(c *websocket.Conn, id uuid.UUID) {
+func (h MessageSocketHandler) readPump(c *websocket.Conn, id uuid.UUID, close chan bool) {
 
 	defer func() { //Porperly close connection
 		h.hub.Unregister <- id
+		close <- true
 		c.Close()
 	}()
 
