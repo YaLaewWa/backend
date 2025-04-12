@@ -6,7 +6,7 @@ import (
 	"socket/pkg/apperror"
 
 	"github.com/go-playground/validator"
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
 )
 
 type UserHandler struct {
