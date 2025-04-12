@@ -2,8 +2,10 @@ package server
 
 import (
 	"log"
+	"socket/internal/hub"
 
 	"github.com/gofiber/contrib/websocket"
+	"github.com/google/uuid"
 )
 
 func (s *Server) initRoutes() {
@@ -13,9 +15,16 @@ func (s *Server) initRoutes() {
 
 func (s *Server) initSocket() {
 	s.app.Get("/ws", websocket.New(func(c *websocket.Conn) {
-		s.db.Clients[c] = true
+		id := uuid.New() //TODO: change to user id in the future
+		hubChannel := make(chan []byte)
+		payload := &hub.RegisterPayload{
+			Channel: hubChannel,
+			ID:      id,
+		}
+		s.messageHub.Register <- payload //register new connection to hub
+
 		defer func() { //Porperly close connection
-			delete(s.db.Clients, c)
+			s.messageHub.Unregister <- id
 			c.Close()
 		}()
 
@@ -28,20 +37,17 @@ func (s *Server) initSocket() {
 		}
 
 		for {
-			mt, msg, err := c.ReadMessage()
+			_, msg, err := c.ReadMessage()
 			if err != nil {
 				log.Println("read:", err)
 				break
 			}
 			s.db.Message = append(s.db.Message, msg)
-			for k := range s.db.Clients {
-				err = k.WriteMessage(mt, msg)
-				if err != nil {
-					break
-				}
-			}
+			s.messageHub.Broadcast <- msg
+
+			msg = <-hubChannel
+			err = c.WriteMessage(1, msg)
 			if err != nil {
-				log.Println("write:", err)
 				break
 			}
 		}
