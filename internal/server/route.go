@@ -8,7 +8,7 @@ import (
 
 func (s *Server) initRoutes() {
 	s.initSocket()
-	s.initUser()
+	s.initAuth()
 }
 
 func (s *Server) initSocket() {
@@ -49,7 +49,7 @@ func (s *Server) initSocket() {
 
 }
 
-func (s *Server) initUser() {
+func (s *Server) initAuth() {
 	authRoutes := s.app.Group("/auth")
 	authRoutes.Post("/register", s.handler.userHandler.Register)
 	authRoutes.Post("/login", s.handler.userHandler.Login)
