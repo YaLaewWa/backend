@@ -12,7 +12,7 @@ func main() {
 	config := config.Load()
 	db, err := database.New(config.DB)
 	if err != nil {
-		fmt.Println("Error to init db")
+		log.Fatalf("Failed to init  DB err: %v", err)
 	}
 	db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";")
 	err = db.AutoMigrate(
