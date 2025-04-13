@@ -6,12 +6,15 @@ import (
 )
 
 type Repository struct {
-	userRepository ports.UserRepository
+	userRepository    ports.UserRepository
+	messageRepository ports.MessageRepository
 }
 
 func (s *Server) initRepository() {
 	userRepo := repository.NewUserRepo(s.pgDB)
+	messageRepo := repository.NewMessageRepository(s.pgDB)
 	s.repository = &Repository{
-		userRepository: userRepo,
+		userRepository:    userRepo,
+		messageRepository: messageRepo,
 	}
 }

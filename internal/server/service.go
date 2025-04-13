@@ -6,12 +6,15 @@ import (
 )
 
 type Service struct {
-	userService ports.UserService
+	userService    ports.UserService
+	messageService ports.MessageService
 }
 
 func (s *Server) initService() {
 	userService := services.NewUserService(s.repository.userRepository, s.jwt)
+	messageService := services.NewMessageRepository(s.repository.messageRepository)
 	s.service = &Service{
-		userService: userService,
+		userService:    userService,
+		messageService: messageService,
 	}
 }
