@@ -8,12 +8,12 @@ import (
 
 type MessageRepository interface {
 	Create(msg *domain.Message) error
-	GetAll() ([]domain.Message, error)
+	GetAll(limit, page int) ([]domain.Message, int, int, error)
 }
 
 type MessageService interface {
 	Create(msg *domain.Message) error
-	GetAll() ([]domain.Message, error)
+	GetAll(limit, page int) ([]domain.Message, int, int, error)
 }
 
 type MessageSocketHandler interface {

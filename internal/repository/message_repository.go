@@ -3,6 +3,7 @@ package repository
 import (
 	"socket/internal/core/domain"
 	"socket/internal/core/ports"
+	"socket/internal/database"
 	"socket/pkg/apperror"
 
 	"gorm.io/gorm"
@@ -23,13 +24,12 @@ func (m *MessageRepository) Create(msg *domain.Message) error {
 	return nil
 }
 
-func (m *MessageRepository) GetAll() ([]domain.Message, error) {
+func (m *MessageRepository) GetAll(limit, page int) ([]domain.Message, int, int, error) {
 	var msgs []domain.Message
+	var total, last int
 
-	// Not to sure what the order suppose to be here
-	// Also does chat have pagination?
-	if err := m.db.Order("created_at DESC").Find(&msgs).Error; err != nil {
-		return nil, apperror.InternalServerError(err, "Failed to retrieve messages")
+	if err := m.db.Scopes(database.Paginate(domain.Message{}, &limit, &page, &total, &last)).Order("created_at DESC").Find(&msgs).Error; err != nil {
+		return nil, 0, 0, apperror.InternalServerError(err, "Failed to retrieve messages")
 	}
-	return msgs, nil
+	return msgs, last, total, nil
 }

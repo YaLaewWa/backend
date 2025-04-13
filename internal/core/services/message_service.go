@@ -17,6 +17,6 @@ func (m *MessageService) Create(msg *domain.Message) error {
 	return m.repo.Create(msg)
 }
 
-func (m *MessageService) GetAll() ([]domain.Message, error) {
-	return m.repo.GetAll()
+func (m *MessageService) GetAll(limit, page int) ([]domain.Message, int, int, error) {
+	return m.repo.GetAll(limit, page)
 }
