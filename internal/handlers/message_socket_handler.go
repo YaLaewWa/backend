@@ -59,11 +59,10 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 		message.Content = string(msg[:])
 		message.Username = username
 		if err = h.service.Create(message); err != nil {
-			// not sure how to actually handle this case
 			log.Println("error: ", err)
+		} else {
+			h.hub.Broadcast <- msg
 		}
-
-		h.hub.Broadcast <- msg
 	}
 }
 
