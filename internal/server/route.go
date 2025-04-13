@@ -16,7 +16,6 @@ func (s *Server) initRoutes() {
 }
 
 func (s *Server) initSocket() {
-	swag.Register(docs.SwaggerInfo.InfoInstanceName, docs.SwaggerInfo)
 	s.app.Get("/ws", websocket.New(s.handler.socketMessageHandler.InitConnection))
 
 }
@@ -28,6 +27,7 @@ func (s *Server) initAuth() {
 }
 
 func (s *Server) initSwagger() {
+	swag.Register(docs.SwaggerInfo.InfoInstanceName, docs.SwaggerInfo)
 	s.app.Get("/swagger/*", swagger.HandlerDefault) // default
 }
 
