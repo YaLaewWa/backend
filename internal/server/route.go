@@ -27,9 +27,4 @@ func (s *Server) initAuth() {
 func (s *Server) initSwagger() {
 	s.app.Get("/swagger/*", swagger.HandlerDefault) // default
 
-	s.app.Get("/swagger/*", swagger.New(swagger.Config{ // custom
-		DeepLinking:  false,
-		DocExpansion: "none",
-	}))
-
 }
