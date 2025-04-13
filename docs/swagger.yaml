@@ -16,6 +16,35 @@ definitions:
       error:
         type: string
     type: object
+  socket_internal_dto.MessageResponse:
+    properties:
+      create_at:
+        type: string
+      message:
+        type: string
+      username:
+        type: string
+    type: object
+  socket_internal_dto.Pagination:
+    properties:
+      current_page:
+        type: integer
+      last_page:
+        type: integer
+      limit:
+        type: integer
+      total:
+        type: integer
+    type: object
+  socket_internal_dto.PaginationResponse-socket_internal_dto_MessageResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/socket_internal_dto.MessageResponse'
+        type: array
+      pagination:
+        $ref: '#/definitions/socket_internal_dto.Pagination'
+    type: object
   socket_internal_dto.SuccessResponse-socket_internal_dto_UserResponse:
     properties:
       data:
@@ -111,4 +140,30 @@ paths:
       summary: Register a user
       tags:
       - Auth
+  /messages:
+    get:
+      description: Retrieve a list of all messages.
+      parameters:
+      - description: Number of messages to retrieve (default 10, max 50)
+        in: query
+        name: limit
+        type: integer
+      - description: Page number to retrieve (default 1)
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Messages retrieved successfully
+          schema:
+            $ref: '#/definitions/socket_internal_dto.PaginationResponse-socket_internal_dto_MessageResponse'
+        "500":
+          description: Failed to retrieve messages
+          schema:
+            $ref: '#/definitions/socket_internal_dto.ErrorResponse'
+      summary: Get all messages
+      tags:
+      - Message
 swagger: "2.0"
