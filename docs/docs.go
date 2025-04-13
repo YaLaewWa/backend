@@ -43,13 +43,13 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "successfully login",
                         "schema": {
                             "$ref": "#/definitions/socket_internal_dto.SuccessResponse-socket_internal_dto_UserWithTokenResponse"
                         }
                     },
                     "400": {
-                        "description": "your request is invalid or\"your request body is incorrect or cannot save user",
+                        "description": "your request is invalid or your request body is incorrect or cannot save user",
                         "schema": {
                             "$ref": "#/definitions/socket_internal_dto.ErrorResponse"
                         }
@@ -89,13 +89,13 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "register successfully",
                         "schema": {
                             "$ref": "#/definitions/socket_internal_dto.SuccessResponse-socket_internal_dto_UserResponse"
                         }
                     },
                     "400": {
-                        "description": "your request is invalid or\"your request body is incorrect or cannot save user",
+                        "description": "your request is invalid or your request body is incorrect or cannot save user",
                         "schema": {
                             "$ref": "#/definitions/socket_internal_dto.ErrorResponse"
                         }
