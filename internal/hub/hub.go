@@ -1,24 +1,22 @@
 package hub
 
-import "github.com/google/uuid"
-
 type RegisterPayload struct {
-	Channel chan []byte
-	ID      uuid.UUID
+	Channel  chan []byte
+	Username string
 }
 
 type Hub struct {
-	Clients    map[uuid.UUID]chan []byte
+	Clients    map[string]chan []byte
 	Register   chan *RegisterPayload
-	Unregister chan uuid.UUID
+	Unregister chan string
 	Broadcast  chan []byte
 }
 
 func NewHub() *Hub {
 	return &Hub{
-		Clients:    make(map[uuid.UUID]chan []byte),
+		Clients:    make(map[string]chan []byte),
 		Register:   make(chan *RegisterPayload),
-		Unregister: make(chan uuid.UUID),
+		Unregister: make(chan string),
 		Broadcast:  make(chan []byte),
 	}
 }
@@ -26,8 +24,8 @@ func NewHub() *Hub {
 func (h *Hub) Run() {
 	for {
 		select {
-		case UserID := <-h.Register:
-			h.Clients[UserID.ID] = UserID.Channel
+		case User := <-h.Register:
+			h.Clients[User.Username] = User.Channel
 			// for index := range h.Message {
 			// 	h.Clients[UserID.ID] <- h.Message[index]
 			// }

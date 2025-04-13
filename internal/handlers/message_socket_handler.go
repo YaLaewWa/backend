@@ -10,7 +10,6 @@ import (
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
 type MessageSocketHandler struct {
@@ -23,16 +22,16 @@ func NewMessageSocketHandler(hub *hub.Hub, service ports.MessageService) ports.M
 }
 
 func (h MessageSocketHandler) InitConnection(c *websocket.Conn) {
-	id := uuid.New()                     //TODO: change to user id in the future
+	username := "Peaw"                   //TODO: change to current user's username in the future
 	hubChannel := make(chan []byte, 256) //buffer up to 256 strings
 	closeConnection := make(chan bool)
 	payload := &hub.RegisterPayload{
-		Channel: hubChannel,
-		ID:      id,
+		Channel:  hubChannel,
+		Username: username,
 	}
 	h.hub.Register <- payload //register new connection to hub
 
-	go h.readPump(c, id, closeConnection)
+	go h.readPump(c, username, closeConnection)
 	go h.writePump(c, hubChannel)
 	for {
 		if <-closeConnection {
@@ -41,10 +40,10 @@ func (h MessageSocketHandler) InitConnection(c *websocket.Conn) {
 	}
 }
 
-func (h MessageSocketHandler) readPump(c *websocket.Conn, id uuid.UUID, close chan bool) {
+func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close chan bool) {
 
 	defer func() { //Porperly close connection
-		h.hub.Unregister <- id
+		h.hub.Unregister <- username
 		close <- true
 		c.Close()
 	}()
@@ -58,6 +57,7 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, id uuid.UUID, close ch
 
 		message := new(domain.Message)
 		message.Content = string(msg[:])
+		message.Username = username
 		if err = h.service.Create(message); err != nil {
 			// not sure how to actually handle this case
 			log.Println("error: ", err)
