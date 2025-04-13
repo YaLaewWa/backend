@@ -26,7 +26,6 @@ go.work.sum
 !.env.example
 
 bin/
-docs/
 
 .DS_Store
 #temp directory for running locally
