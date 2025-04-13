@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"log"
+	"socket/internal/core/domain"
 	"socket/internal/core/ports"
 	"socket/internal/hub"
 
@@ -10,11 +11,12 @@ import (
 )
 
 type MessageSocketHandler struct {
-	hub *hub.Hub
+	hub     *hub.Hub
+	service ports.MessageService
 }
 
-func NewMessageSocketHandler(hub *hub.Hub) ports.MessageSocketHandler {
-	return &MessageSocketHandler{hub}
+func NewMessageSocketHandler(hub *hub.Hub, service ports.MessageService) ports.MessageSocketHandler {
+	return &MessageSocketHandler{hub: hub, service: service}
 }
 
 func (h MessageSocketHandler) InitConnection(c *websocket.Conn) {
@@ -50,6 +52,14 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, id uuid.UUID, close ch
 			log.Println("read:", err)
 			break
 		}
+
+		message := new(domain.Message)
+		message.Content = string(msg[:])
+		if err = h.service.Create(message); err != nil {
+			// not sure how to actually handle this case
+			log.Println("error: ", err)
+		}
+
 		h.hub.Broadcast <- msg
 	}
 }
