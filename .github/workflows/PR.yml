@@ -28,3 +28,6 @@ jobs:
 
       - name: Build
         run: go build -o bin/server ./cmd/init/main.go
+
+      - name: Swagger
+        run: make gen-docs
