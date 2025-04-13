@@ -77,6 +77,16 @@ func (h MessageSocketHandler) writePump(c *websocket.Conn, channel chan []byte) 
 	}
 }
 
+// GetAll godoc
+// @Summary Get all messages
+// @Description Retrieve a list of all messages.
+// @Tags Message
+// @Produce json
+// @Param limit query int false "Number of messages to retrieve (default 10, max 50)"
+// @Param page query int false "Page number to retrieve (default 1)"
+// @Success 200 {object} dto.PaginationResponse[dto.MessageResponse] "Messages retrieved successfully"
+// @Failure 500 {object} dto.ErrorResponse "Failed to retrieve messages"
+// @Router /messages [get]
 func (h MessageSocketHandler) GetAll(c *fiber.Ctx) error {
 	page, limit := util.PaginationQuery(c)
 

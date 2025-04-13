@@ -1,10 +1,11 @@
 package server
 
 import (
-	_ "socket/docs"
+	"socket/docs"
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/swagger"
+	"github.com/swaggo/swag"
 )
 
 func (s *Server) initRoutes() {
@@ -26,6 +27,7 @@ func (s *Server) initAuth() {
 }
 
 func (s *Server) initSwagger() {
+	swag.Register(docs.SwaggerInfo.InfoInstanceName, docs.SwaggerInfo)
 	s.app.Get("/swagger/*", swagger.HandlerDefault) // default
 }
 

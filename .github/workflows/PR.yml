@@ -21,7 +21,7 @@ jobs:
           cache-dependency-path: go.sum
           
       - name: Setup swagger 
-        run: go install github.com/swaggo/swag/cmd/swag@latest
+        run: go install github.com/swaggo/swag/v2/cmd/swag@v2.0.0-rc4
 
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v6
