@@ -1,12 +1,16 @@
 package server
 
 import (
+	_ "socket/docs"
+
 	"github.com/gofiber/contrib/websocket"
+	"github.com/gofiber/swagger"
 )
 
 func (s *Server) initRoutes() {
 	s.initSocket()
 	s.initAuth()
+	s.initSwagger()
 	s.initMessage()
 }
 
@@ -19,6 +23,10 @@ func (s *Server) initAuth() {
 	authRoutes := s.app.Group("/auth")
 	authRoutes.Post("/register", s.handler.userHandler.Register)
 	authRoutes.Post("/login", s.handler.userHandler.Login)
+}
+
+func (s *Server) initSwagger() {
+	s.app.Get("/swagger/*", swagger.HandlerDefault) // default
 }
 
 func (s *Server) initMessage() {

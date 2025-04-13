@@ -12,6 +12,10 @@ import (
 	"syscall"
 )
 
+// @title chadChat API
+// @version 1.0
+// @description This is a swagger to show all RestAPI of chadChat project
+// @contact.name API Support
 func main() {
 	config := config.Load()
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)

@@ -19,6 +19,9 @@ jobs:
           go-version: "1.23.2"
           cache: true
           cache-dependency-path: go.sum
+          
+      - name: Setup swagger 
+        run: go install github.com/swaggo/swag/cmd/swag@latest
 
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v6
@@ -28,3 +31,6 @@ jobs:
 
       - name: Build
         run: go build -o bin/server ./cmd/init/main.go
+
+      - name: Swagger
+        run: make gen-docs
