@@ -11,6 +11,7 @@ func (s *Server) initRoutes() {
 	s.initSocket()
 	s.initAuth()
 	s.initSwagger()
+	s.initMessage()
 }
 
 func (s *Server) initSocket() {
@@ -26,5 +27,9 @@ func (s *Server) initAuth() {
 
 func (s *Server) initSwagger() {
 	s.app.Get("/swagger/*", swagger.HandlerDefault) // default
+}
 
+func (s *Server) initMessage() {
+	messageRoutes := s.app.Group("/messages")
+	messageRoutes.Get("/", s.handler.socketMessageHandler.GetAll)
 }

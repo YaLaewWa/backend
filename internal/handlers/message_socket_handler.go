@@ -2,32 +2,36 @@ package handlers
 
 import (
 	"log"
+	"socket/internal/core/domain"
 	"socket/internal/core/ports"
+	"socket/internal/dto"
 	"socket/internal/hub"
+	"socket/pkg/util"
 
 	"github.com/gofiber/contrib/websocket"
-	"github.com/google/uuid"
+	"github.com/gofiber/fiber/v2"
 )
 
 type MessageSocketHandler struct {
-	hub *hub.Hub
+	hub     *hub.Hub
+	service ports.MessageService
 }
 
-func NewMessageSocketHandler(hub *hub.Hub) ports.MessageSocketHandler {
-	return &MessageSocketHandler{hub}
+func NewMessageSocketHandler(hub *hub.Hub, service ports.MessageService) ports.MessageSocketHandler {
+	return &MessageSocketHandler{hub: hub, service: service}
 }
 
 func (h MessageSocketHandler) InitConnection(c *websocket.Conn) {
-	id := uuid.New()                     //TODO: change to user id in the future
+	username := "Peaw"                   //TODO: change to current user's username in the future
 	hubChannel := make(chan []byte, 256) //buffer up to 256 strings
 	closeConnection := make(chan bool)
 	payload := &hub.RegisterPayload{
-		Channel: hubChannel,
-		ID:      id,
+		Channel:  hubChannel,
+		Username: username,
 	}
 	h.hub.Register <- payload //register new connection to hub
 
-	go h.readPump(c, id, closeConnection)
+	go h.readPump(c, username, closeConnection)
 	go h.writePump(c, hubChannel)
 	for {
 		if <-closeConnection {
@@ -36,10 +40,10 @@ func (h MessageSocketHandler) InitConnection(c *websocket.Conn) {
 	}
 }
 
-func (h MessageSocketHandler) readPump(c *websocket.Conn, id uuid.UUID, close chan bool) {
+func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close chan bool) {
 
 	defer func() { //Porperly close connection
-		h.hub.Unregister <- id
+		h.hub.Unregister <- username
 		close <- true
 		c.Close()
 	}()
@@ -50,7 +54,15 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, id uuid.UUID, close ch
 			log.Println("read:", err)
 			break
 		}
-		h.hub.Broadcast <- msg
+
+		message := new(domain.Message)
+		message.Content = string(msg[:])
+		message.Username = username
+		if err = h.service.Create(message); err != nil {
+			log.Println("error: ", err)
+		} else {
+			h.hub.Broadcast <- msg
+		}
 	}
 }
 
@@ -63,4 +75,20 @@ func (h MessageSocketHandler) writePump(c *websocket.Conn, channel chan []byte) 
 			break
 		}
 	}
+}
+
+func (h MessageSocketHandler) GetAll(c *fiber.Ctx) error {
+	page, limit := util.PaginationQuery(c)
+
+	msgs, totalPages, totalRows, err := h.service.GetAll(limit, page)
+	if err != nil {
+		return err
+	}
+
+	res := make([]dto.MessageResponse, len(msgs))
+	for i, msg := range msgs {
+		res[i] = msg.ToDTO()
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.SuccessPagination(res, page, totalPages, limit, totalRows))
 }
