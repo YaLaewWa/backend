@@ -4,6 +4,7 @@ import (
 	"socket/internal/core/domain"
 
 	"github.com/gofiber/contrib/websocket"
+	"github.com/gofiber/fiber/v2"
 )
 
 type MessageRepository interface {
@@ -18,4 +19,5 @@ type MessageService interface {
 
 type MessageSocketHandler interface {
 	InitConnection(c *websocket.Conn)
+	GetAll(c *fiber.Ctx) error
 }

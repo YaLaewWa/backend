@@ -4,9 +4,12 @@ import (
 	"log"
 	"socket/internal/core/domain"
 	"socket/internal/core/ports"
+	"socket/internal/dto"
 	"socket/internal/hub"
+	"socket/pkg/util"
 
 	"github.com/gofiber/contrib/websocket"
+	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
 
@@ -73,4 +76,20 @@ func (h MessageSocketHandler) writePump(c *websocket.Conn, channel chan []byte) 
 			break
 		}
 	}
+}
+
+func (h MessageSocketHandler) GetAll(c *fiber.Ctx) error {
+	page, limit := util.PaginationQuery(c)
+
+	msgs, totalPages, totalRows, err := h.service.GetAll(limit, page)
+	if err != nil {
+		return err
+	}
+
+	res := make([]dto.MessageResponse, len(msgs))
+	for i, msg := range msgs {
+		res[i] = msg.ToDTO()
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.SuccessPagination(res, page, totalPages, limit, totalRows))
 }
