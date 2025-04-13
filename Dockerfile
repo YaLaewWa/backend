@@ -10,4 +10,6 @@ COPY . .
 
 RUN go build -o bin/server ./cmd/init/main.go
 
+RUN make gen-docs
+
 CMD ["/app/bin/server"]
