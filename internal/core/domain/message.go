@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"socket/internal/dto"
 	"time"
 
 	"github.com/google/uuid"
@@ -13,4 +14,12 @@ type Message struct {
 	Username string
 	Content  string
 	// TODO: connect message to some chat
+}
+
+func (m *Message) ToDTO() dto.MessageResponse {
+	return dto.MessageResponse{
+		CreateAt: m.CreateAt,
+		Username: m.Username,
+		Content:  m.Content,
+	}
 }
