@@ -1,0 +1,8 @@
+info:
+  contact:
+    name: API Support
+  description: This is a swagger to show all RestAPI of chadChat project
+  title: chadChat API
+  version: "1.0"
+paths: {}
+swagger: "2.0"

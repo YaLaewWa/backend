@@ -14,6 +14,9 @@ deps:
 lint:
 	golangci-lint run
 
+gen-docs:
+	swag init -o docs -g ./cmd/init/main.go
+
 migrate:
 	go run ./cmd/migrate/main.go
 
