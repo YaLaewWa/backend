@@ -7,6 +7,7 @@ import (
 	"socket/pkg/util"
 	"strings"
 
+	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -54,4 +55,11 @@ func (a *AuthMiddleware) Auth(ctx *fiber.Ctx) error {
 	ctx.Locals("user", user)
 
 	return ctx.Next()
+}
+
+func (a *AuthMiddleware) Websocket(c *fiber.Ctx) error {
+	if !websocket.IsWebSocketUpgrade(c) {
+		return apperror.UpgradeRequiredError(errors.New("your request is not intended for a websocket upgrade"), "your request is not intended for a websocket upgrade")
+	}
+	return c.Next()
 }
