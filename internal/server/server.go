@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"socket/internal/hub"
+	"socket/internal/middleware"
 
 	"socket/pkg/apperror"
 	"socket/pkg/util"
@@ -29,6 +30,7 @@ type Server struct {
 	handler    *Handler
 	jwt        *util.JWTUtils
 	messageHub *hub.Hub
+	middleware *middleware.AuthMiddleware
 }
 
 func NewServer(config Config, pgDB *gorm.DB, jwt *util.JWTUtils) *Server {
@@ -57,6 +59,7 @@ func (s *Server) Start(ctx context.Context, stop context.CancelFunc) {
 	s.initService()
 	s.initHandler()
 	s.initRoutes()
+	s.initMiddleware()
 	go s.messageHub.Run()
 
 	// start server
@@ -78,4 +81,8 @@ func (s *Server) Start(ctx context.Context, stop context.CancelFunc) {
 	<-ctx.Done()
 
 	log.Println("Server is shutting down...")
+}
+
+func (s *Server) initMiddleware() {
+	s.middleware = middleware.NewAuthMiddleware(s.jwt, s.repository.userRepository)
 }
