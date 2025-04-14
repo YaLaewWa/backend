@@ -1,5 +1,10 @@
 package hub
 
+import (
+	"encoding/json"
+	"log"
+)
+
 type RegisterPayload struct {
 	Channel  chan []byte
 	Username string
@@ -34,4 +39,30 @@ func (h *Hub) Run() {
 			}
 		}
 	}
+}
+
+func (h *Hub) broadcastOnlineUsers() {
+	onlineUsers := make([]string, len(h.Clients))
+	for username := range h.Clients {
+		onlineUsers = append(onlineUsers, username)
+	}
+
+	// not too sure about this yet but
+	// our json may have to look like {"type":"?", "content":?}
+	// because we can have many kind of stuff to send over socket
+	// not too sure what to call each field yet
+	msg := map[string]interface{}{
+		"type":         "online_users",
+		"online_users": onlineUsers,
+	}
+
+	data, err := json.Marshal(msg)
+	if err != nil {
+		log.Println("error: ", err)
+	} else {
+		for id := range h.Clients {
+			h.Clients[id] <- data
+		}
+	}
+
 }
