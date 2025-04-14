@@ -58,8 +58,10 @@ func (s *Server) Start(ctx context.Context, stop context.CancelFunc) {
 	s.initRepository()
 	s.initService()
 	s.initHandler()
-	s.initRoutes()
+
 	s.initMiddleware()
+	s.initRoutes()
+
 	go s.messageHub.Run()
 
 	// start server
