@@ -163,7 +163,15 @@ paths:
           description: Failed to retrieve messages
           schema:
             $ref: '#/definitions/socket_internal_dto.ErrorResponse'
+      security:
+      - Bearer: []
       summary: Get all messages
       tags:
       - Message
+securityDefinitions:
+  Bearer:
+    description: Beerer token authentication
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

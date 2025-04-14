@@ -81,6 +81,7 @@ func (h MessageSocketHandler) writePump(c *websocket.Conn, channel chan []byte) 
 // @Summary Get all messages
 // @Description Retrieve a list of all messages.
 // @Tags Message
+// @Security Bearer
 // @Produce json
 // @Param limit query int false "Number of messages to retrieve (default 10, max 50)"
 // @Param page query int false "Page number to retrieve (default 1)"

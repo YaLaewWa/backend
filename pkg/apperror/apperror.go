@@ -63,6 +63,10 @@ func UnprocessableEntityError(err error, msg string) *AppError {
 	return New(fiber.StatusUnprocessableEntity, msg, err)
 }
 
+func UpgradeRequiredError(err error, msg string) *AppError {
+	return New(fiber.StatusUpgradeRequired, msg, err)
+}
+
 func ErrorHandler(c *fiber.Ctx, err error) error {
 
 	// if is app error
