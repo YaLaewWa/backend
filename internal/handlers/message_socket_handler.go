@@ -22,7 +22,8 @@ func NewMessageSocketHandler(hub *hub.Hub, service ports.MessageService) ports.M
 }
 
 func (h MessageSocketHandler) InitConnection(c *websocket.Conn) {
-	username := "Peaw"                   //TODO: change to current user's username in the future
+	user := c.Locals("user").(domain.User)
+	username := user.Username
 	hubChannel := make(chan []byte, 256) //buffer up to 256 strings
 	closeConnection := make(chan bool)
 	payload := &hub.RegisterPayload{
