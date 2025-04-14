@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	"encoding/json"
 	"log"
 	"socket/internal/core/domain"
 	"socket/internal/core/ports"
 	"socket/internal/dto"
 	"socket/internal/hub"
 	"socket/pkg/util"
+	"time"
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
@@ -22,7 +24,7 @@ func NewMessageSocketHandler(hub *hub.Hub, service ports.MessageService) ports.M
 }
 
 func (h MessageSocketHandler) InitConnection(c *websocket.Conn) {
-	user := c.Locals("user").(domain.User)
+	user := c.Locals("user").(*domain.User)
 	username := user.Username
 	hubChannel := make(chan []byte, 256) //buffer up to 256 strings
 	closeConnection := make(chan bool)
@@ -62,7 +64,16 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 		if err = h.service.Create(message); err != nil {
 			log.Println("error: ", err)
 		} else {
-			h.hub.Broadcast <- msg
+			messageStruct := &domain.Message{
+				Content:  string(msg),
+				Username: username,
+				CreateAt: time.Now(),
+			}
+			jsonBytes, err := json.Marshal(messageStruct.ToDTO())
+			if err != nil {
+				log.Println("error: ", err)
+			}
+			h.hub.Broadcast <- jsonBytes
 		}
 	}
 }
