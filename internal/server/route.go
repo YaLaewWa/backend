@@ -33,6 +33,6 @@ func (s *Server) initSwagger() {
 }
 
 func (s *Server) initMessage() {
-	messageRoutes := s.app.Group("/messages")
+	messageRoutes := s.app.Group("/messages", s.middleware.Auth)
 	messageRoutes.Get("/", s.handler.socketMessageHandler.GetAll)
 }
