@@ -16,6 +16,10 @@ import (
 // @version 1.0
 // @description This is a swagger to show all RestAPI of chadChat project
 // @contact.name API Support
+// @securityDefinitions.apiKey Bearer
+// @in header
+// @name Authorization
+// @description Bearer token authentication
 func main() {
 	config := config.Load()
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
