@@ -44,7 +44,7 @@ func (h *Hub) Run() {
 }
 
 func (h *Hub) broadcastOnlineUsers() {
-	onlineUsers := make([]string, len(h.Clients))
+	onlineUsers := []string{}
 	for username := range h.Clients {
 		onlineUsers = append(onlineUsers, username)
 	}
