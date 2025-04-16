@@ -31,8 +31,10 @@ func (h *Hub) Run() {
 		select {
 		case User := <-h.Register:
 			h.Clients[User.Username] = User.Channel
+			h.broadcastOnlineUsers()
 		case ID := <-h.Unregister:
 			delete(h.Clients, ID)
+			h.broadcastOnlineUsers()
 		case msg := <-h.Broadcast:
 			for id := range h.Clients {
 				h.Clients[id] <- msg
