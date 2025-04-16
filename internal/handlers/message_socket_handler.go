@@ -22,7 +22,8 @@ func NewMessageSocketHandler(hub *hub.Hub, service ports.MessageService) ports.M
 }
 
 func (h MessageSocketHandler) InitConnection(c *websocket.Conn) {
-	username := "Peaw"                   //TODO: change to current user's username in the future
+	user := c.Locals("user").(*domain.User)
+	username := user.Username
 	hubChannel := make(chan []byte, 256) //buffer up to 256 strings
 	closeConnection := make(chan bool)
 	payload := &hub.RegisterPayload{
@@ -81,6 +82,7 @@ func (h MessageSocketHandler) writePump(c *websocket.Conn, channel chan []byte) 
 // @Summary Get all messages
 // @Description Retrieve a list of all messages.
 // @Tags Message
+// @Security Bearer
 // @Produce json
 // @Param limit query int false "Number of messages to retrieve (default 10, max 50)"
 // @Param page query int false "Page number to retrieve (default 1)"

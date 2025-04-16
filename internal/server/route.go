@@ -16,6 +16,7 @@ func (s *Server) initRoutes() {
 }
 
 func (s *Server) initSocket() {
+	s.app.Use("/ws", s.middleware.Auth, s.middleware.Websocket)
 	s.app.Get("/ws", websocket.New(s.handler.socketMessageHandler.InitConnection))
 
 }
@@ -32,6 +33,6 @@ func (s *Server) initSwagger() {
 }
 
 func (s *Server) initMessage() {
-	messageRoutes := s.app.Group("/messages")
+	messageRoutes := s.app.Group("/messages", s.middleware.Auth)
 	messageRoutes.Get("/", s.handler.socketMessageHandler.GetAll)
 }
