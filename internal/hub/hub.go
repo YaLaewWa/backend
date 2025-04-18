@@ -82,8 +82,10 @@ func (h *Hub) broadcastUser(username string, register bool) {
 	if err != nil {
 		log.Println("error: ", err)
 	} else {
-		for username := range h.Clients {
-			h.Clients[username] <- data
+		for u := range h.Clients {
+			if u != username {
+				h.Clients[u] <- data
+			}
 		}
 	}
 
