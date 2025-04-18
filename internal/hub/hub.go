@@ -31,10 +31,11 @@ func (h *Hub) Run() {
 		select {
 		case User := <-h.Register:
 			h.Clients[User.Username] = User.Channel
-			h.broadcastOnlineUsers()
-		case ID := <-h.Unregister:
-			delete(h.Clients, ID)
-			h.broadcastOnlineUsers()
+			h.sendOnlineUsers(User.Username)
+			h.broadcastUser(User.Username, true)
+		case username := <-h.Unregister:
+			delete(h.Clients, username)
+			h.broadcastUser(username, false)
 		case msg := <-h.Broadcast:
 			for id := range h.Clients {
 				h.Clients[id] <- msg
@@ -43,16 +44,13 @@ func (h *Hub) Run() {
 	}
 }
 
-func (h *Hub) broadcastOnlineUsers() {
+// send list of online users to user with username
+func (h *Hub) sendOnlineUsers(username string) {
 	onlineUsers := []string{}
 	for username := range h.Clients {
 		onlineUsers = append(onlineUsers, username)
 	}
 
-	// not too sure about this yet but
-	// our json may have to look like {"type":"?", "content":?}
-	// because we can have many kind of stuff to send over socket
-	// not too sure what to call each field yet
 	msg := map[string]interface{}{
 		"type":         "online_users",
 		"online_users": onlineUsers,
@@ -62,8 +60,30 @@ func (h *Hub) broadcastOnlineUsers() {
 	if err != nil {
 		log.Println("error: ", err)
 	} else {
-		for id := range h.Clients {
-			h.Clients[id] <- data
+		h.Clients[username] <- data
+	}
+}
+
+// broadcast to all user that a user with username register or unregister from the hub
+func (h *Hub) broadcastUser(username string, register bool) {
+	var msgType string
+	if register {
+		msgType = "user_login"
+	} else {
+		msgType = "user_logout"
+	}
+
+	msg := map[string]interface{}{
+		"type":     msgType,
+		"username": username,
+	}
+
+	data, err := json.Marshal(msg)
+	if err != nil {
+		log.Println("error: ", err)
+	} else {
+		for username := range h.Clients {
+			h.Clients[username] <- data
 		}
 	}
 
