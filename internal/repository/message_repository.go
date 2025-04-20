@@ -6,6 +6,7 @@ import (
 	"socket/internal/database"
 	"socket/pkg/apperror"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -24,12 +25,14 @@ func (m *MessageRepository) Create(msg *domain.Message) error {
 	return nil
 }
 
-func (m *MessageRepository) GetAll(limit, page int) ([]domain.Message, int, int, error) {
+func (m *MessageRepository) GetByChatID(chatID uuid.UUID, limit int, page int) ([]domain.Message, int, int, error) {
 	var msgs []domain.Message
 	var total, last int
 
-	if err := m.db.Scopes(database.Paginate(domain.Message{}, &limit, &page, &total, &last)).Order("create_at DESC").Find(&msgs).Error; err != nil {
+	if err := m.db.Where("chat_id = ?", chatID).Order("create_at DESC").
+		Scopes(database.Paginate(domain.Message{}, &limit, &page, &total, &last)).Find(&msgs).Error; err != nil {
 		return nil, 0, 0, apperror.InternalServerError(err, "Failed to retrieve messages")
 	}
+
 	return msgs, last, total, nil
 }

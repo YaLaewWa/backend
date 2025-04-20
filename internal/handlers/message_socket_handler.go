@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"log"
 	"socket/internal/core/domain"
 	"socket/internal/core/ports"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 type MessageSocketHandler struct {
@@ -56,6 +58,14 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 			break
 		}
 
+		var input struct {
+			Type    string    `json:"type"`
+			ChatID  uuid.UUID `json:"chat_id"`
+			Content string    `json:"content"`
+		}
+
+		json.Unmarshal(msg, &input)
+
 		message := new(domain.Message)
 		message.Content = string(msg[:])
 		message.Username = username
@@ -89,10 +99,15 @@ func (h MessageSocketHandler) writePump(c *websocket.Conn, channel chan []byte) 
 // @Success 200 {object} dto.PaginationResponse[dto.MessageResponse] "Messages retrieved successfully"
 // @Failure 500 {object} dto.ErrorResponse "Failed to retrieve messages"
 // @Router /messages [get]
-func (h MessageSocketHandler) GetAll(c *fiber.Ctx) error {
+func (h MessageSocketHandler) GetByChatID(c *fiber.Ctx) error {
+	chatID, err := util.ParseIdParam(c)
+	if err != nil {
+		return err
+	}
+
 	page, limit := util.PaginationQuery(c)
 
-	msgs, totalPages, totalRows, err := h.service.GetAll(limit, page)
+	msgs, totalPages, totalRows, err := h.service.GetByChatID(chatID, limit, page)
 	if err != nil {
 		return err
 	}

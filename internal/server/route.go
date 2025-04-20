@@ -12,7 +12,6 @@ func (s *Server) initRoutes() {
 	s.initSocket()
 	s.initAuth()
 	s.initSwagger()
-	s.initMessage()
 }
 
 func (s *Server) initSocket() {
@@ -30,9 +29,4 @@ func (s *Server) initAuth() {
 func (s *Server) initSwagger() {
 	swag.Register(docs.SwaggerInfo.InfoInstanceName, docs.SwaggerInfo)
 	s.app.Get("/swagger/*", swagger.HandlerDefault) // default
-}
-
-func (s *Server) initMessage() {
-	messageRoutes := s.app.Group("/messages", s.middleware.Auth)
-	messageRoutes.Get("/", s.handler.socketMessageHandler.GetAll)
 }

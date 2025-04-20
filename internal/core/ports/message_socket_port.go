@@ -5,19 +5,20 @@ import (
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 type MessageRepository interface {
 	Create(msg *domain.Message) error
-	GetAll(limit, page int) ([]domain.Message, int, int, error)
+	GetByChatID(chatID uuid.UUID, limit int, page int) ([]domain.Message, int, int, error)
 }
 
 type MessageService interface {
 	Create(msg *domain.Message) error
-	GetAll(limit, page int) ([]domain.Message, int, int, error)
+	GetByChatID(chatID uuid.UUID, limit int, page int) ([]domain.Message, int, int, error)
 }
 
 type MessageSocketHandler interface {
 	InitConnection(c *websocket.Conn)
-	GetAll(c *fiber.Ctx) error
+	GetByChatID(c *fiber.Ctx) error
 }

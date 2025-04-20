@@ -3,6 +3,8 @@ package services
 import (
 	"socket/internal/core/domain"
 	"socket/internal/core/ports"
+
+	"github.com/google/uuid"
 )
 
 type MessageService struct {
@@ -17,6 +19,6 @@ func (m *MessageService) Create(msg *domain.Message) error {
 	return m.repo.Create(msg)
 }
 
-func (m *MessageService) GetAll(limit, page int) ([]domain.Message, int, int, error) {
-	return m.repo.GetAll(limit, page)
+func (m *MessageService) GetByChatID(chatID uuid.UUID, limit int, page int) ([]domain.Message, int, int, error) {
+	return m.repo.GetByChatID(chatID, limit, page)
 }
