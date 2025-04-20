@@ -1,20 +1,18 @@
 definitions:
-  socket_internal_dto.AuthBody:
-    properties:
-      password:
-        minLength: 9
-        type: string
-      username:
-        minLength: 4
-        type: string
-    required:
-    - password
-    - username
-    type: object
   socket_internal_dto.ErrorResponse:
     properties:
       error:
         type: string
+    type: object
+  socket_internal_dto.LoginRequestBody:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
     type: object
   socket_internal_dto.MessageResponse:
     properties:
@@ -44,6 +42,18 @@ definitions:
         type: array
       pagination:
         $ref: '#/definitions/socket_internal_dto.Pagination'
+    type: object
+  socket_internal_dto.RegisterRequestBody:
+    properties:
+      password:
+        minLength: 8
+        type: string
+      username:
+        minLength: 1
+        type: string
+    required:
+    - password
+    - username
     type: object
   socket_internal_dto.SuccessResponse-socket_internal_dto_UserResponse:
     properties:
@@ -85,7 +95,7 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/socket_internal_dto.AuthBody'
+          $ref: '#/definitions/socket_internal_dto.LoginRequestBody'
       produces:
       - application/json
       responses:
@@ -116,7 +126,7 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/socket_internal_dto.AuthBody'
+          $ref: '#/definitions/socket_internal_dto.RegisterRequestBody'
       produces:
       - application/json
       responses:
@@ -170,7 +180,7 @@ paths:
       - Message
 securityDefinitions:
   Bearer:
-    description: Beerer token authentication
+    description: Bearer token authentication
     in: header
     name: Authorization
     type: apiKey
