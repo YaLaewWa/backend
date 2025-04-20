@@ -12,7 +12,7 @@ type Service struct {
 
 func (s *Server) initService() {
 	userService := services.NewUserService(s.repository.userRepository, s.jwt)
-	messageService := services.NewMessageRepository(s.repository.messageRepository)
+	messageService := services.NewMessageService(s.repository.messageRepository)
 	s.service = &Service{
 		userService:    userService,
 		messageService: messageService,

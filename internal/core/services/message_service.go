@@ -9,7 +9,7 @@ type MessageService struct {
 	repo ports.MessageRepository
 }
 
-func NewMessageRepository(repo ports.MessageRepository) ports.MessageRepository {
+func NewMessageService(repo ports.MessageRepository) ports.MessageService {
 	return &MessageService{repo: repo}
 }
 
