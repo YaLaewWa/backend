@@ -10,6 +10,6 @@ type UserWithTokenResponse struct {
 }
 
 type AuthBody struct {
-	Password string `json:"password" validate:"required,min=9"`
+	Password string `json:"password" validate:"required,min=8"`
 	UserName string `json:"username" validate:"required,min=4"`
 }
