@@ -13,7 +13,7 @@ type Message struct {
 	UpdateAt time.Time `gorm:"autoUpdateTime"`
 	Username string
 	Content  string
-	// TODO: connect message to some chat
+	ChatID   uuid.UUID
 }
 
 func (m *Message) ToDTO() dto.MessageResponse {
