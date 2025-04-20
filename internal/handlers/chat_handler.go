@@ -3,8 +3,10 @@ package handlers
 import (
 	"socket/internal/core/ports"
 	"socket/internal/dto"
+	"socket/pkg/apperror"
 	"socket/pkg/util"
 
+	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -22,11 +24,41 @@ func (h *ChatHandler) AddUserToChat(c *fiber.Ctx) error {
 }
 
 func (h *ChatHandler) CreateDirectChat(c *fiber.Ctx) error {
-	panic("unimplemented")
+	req := new(dto.CreateDirectChatRequest)
+	if err := c.BodyParser(req); err != nil {
+		return apperror.BadRequestError(err, "Invalid input")
+	}
+
+	validate := validator.New()
+	if err := validate.Struct(req); err != nil {
+		return apperror.UnprocessableEntityError(err, "Validation failed")
+	}
+
+	chat, err := h.service.CreateDirectChat(req.User1, req.User2)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(dto.Success(chat.ToDTO()))
 }
 
 func (h *ChatHandler) CreateGroupChat(c *fiber.Ctx) error {
-	panic("unimplemented")
+	req := new(dto.CreateGroupChatRequest)
+	if err := c.BodyParser(req); err != nil {
+		return apperror.BadRequestError(err, "Invalid input")
+	}
+
+	validate := validator.New()
+	if err := validate.Struct(req); err != nil {
+		return apperror.UnprocessableEntityError(err, "Validation failed")
+	}
+
+	chat, err := h.service.CreateGroupChat(req.Name, req.UserIDs)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(dto.Success(chat.ToDTO()))
 }
 
 func (h *ChatHandler) GetChats(c *fiber.Ctx) error {
