@@ -8,13 +8,16 @@ import (
 type Handler struct {
 	userHandler          ports.UserHandler
 	socketMessageHandler ports.MessageSocketHandler
+	chatHandler          ports.ChatHandler
 }
 
 func (s *Server) initHandler() {
 	userHandler := handlers.NewUserHandler(s.service.userService)
 	socketMessageHandler := handlers.NewMessageSocketHandler(s.messageHub, s.service.messageService)
+	chatHandler := handlers.NewChatHandler(s.service.chatService)
 	s.handler = &Handler{
 		userHandler:          userHandler,
 		socketMessageHandler: socketMessageHandler,
+		chatHandler:          chatHandler,
 	}
 }
