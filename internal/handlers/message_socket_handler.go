@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"log"
 	"socket/internal/core/domain"
 	"socket/internal/core/ports"
@@ -57,14 +56,6 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 			log.Println("read:", err)
 			break
 		}
-
-		var input struct {
-			Type    string    `json:"type"`
-			ChatID  uuid.UUID `json:"chat_id"`
-			Content string    `json:"content"`
-		}
-
-		json.Unmarshal(msg, &input)
 
 		message := new(domain.Message)
 		message.Content = string(msg[:])
