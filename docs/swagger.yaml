@@ -115,7 +115,35 @@ paths:
       summary: Login to the system
       tags:
       - Auth
-  /auth/register:
+  /messages:
+    get:
+      description: Retrieve a list of all messages.
+      parameters:
+      - description: Number of messages to retrieve (default 10, max 50)
+        in: query
+        name: limit
+        type: integer
+      - description: Page number to retrieve (default 1)
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Messages retrieved successfully
+          schema:
+            $ref: '#/definitions/socket_internal_dto.PaginationResponse-socket_internal_dto_MessageResponse'
+        "500":
+          description: Failed to retrieve messages
+          schema:
+            $ref: '#/definitions/socket_internal_dto.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get all messages
+      tags:
+      - Message
+  /register:
     post:
       consumes:
       - application/json
@@ -150,34 +178,6 @@ paths:
       summary: Register a user
       tags:
       - Auth
-  /messages:
-    get:
-      description: Retrieve a list of all messages.
-      parameters:
-      - description: Number of messages to retrieve (default 10, max 50)
-        in: query
-        name: limit
-        type: integer
-      - description: Page number to retrieve (default 1)
-        in: query
-        name: page
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Messages retrieved successfully
-          schema:
-            $ref: '#/definitions/socket_internal_dto.PaginationResponse-socket_internal_dto_MessageResponse'
-        "500":
-          description: Failed to retrieve messages
-          schema:
-            $ref: '#/definitions/socket_internal_dto.ErrorResponse'
-      security:
-      - Bearer: []
-      summary: Get all messages
-      tags:
-      - Message
 securityDefinitions:
   Bearer:
     description: Bearer token authentication
