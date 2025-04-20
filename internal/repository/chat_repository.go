@@ -54,3 +54,12 @@ func (c *ChatRepository) GetChatByUserID(userID uuid.UUID, limit int, page int) 
 
 	return chats, last, total, nil
 }
+
+func (c *ChatRepository) AddUserToChat(chatID uuid.UUID, userID uuid.UUID) error {
+	chat := domain.Chat{ID: chatID}
+	user := domain.User{ID: userID}
+	if err := c.db.Model(&chat).Association("Members").Append(&user); err != nil {
+		return apperror.InternalServerError(err, "Failed to add user to chat")
+	}
+	return nil
+}
