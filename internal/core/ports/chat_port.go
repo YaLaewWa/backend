@@ -7,7 +7,7 @@ import (
 )
 
 type ChatRepository interface {
-	Create(name string, users []domain.User, isGroup bool) (*domain.Chat, error)
+	Create(name string, userIDs []uuid.UUID, isGroup bool) (*domain.Chat, error)
 	GetChatMembers(chatID uuid.UUID, limit int, page int) ([]domain.User, int, int, error)
 	GetChatByUserID(userID uuid.UUID, limit int, page int) ([]domain.Chat, int, int, error)
 	AddUserToChat(chatID uuid.UUID, userID uuid.UUID) error

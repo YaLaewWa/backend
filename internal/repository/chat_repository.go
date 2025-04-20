@@ -19,14 +19,19 @@ func NewChatRepository(db *gorm.DB) ports.ChatRepository {
 	return &ChatRepository{db: db}
 }
 
-func (c *ChatRepository) Create(name string, users []domain.User, isGroup bool) (*domain.Chat, error) {
+func (c *ChatRepository) Create(name string, userIDs []uuid.UUID, isGroup bool) (*domain.Chat, error) {
+	var users []domain.User
+	if err := c.db.Where("id IN ?", userIDs).Find(&users).Error; err != nil {
+		return nil, apperror.InternalServerError(err, "Failed to retrieve every user for creating chat")
+	}
+
 	chat := domain.Chat{
 		Name:    name,
 		IsGroup: isGroup,
 		Members: users,
 	}
 	if err := c.db.Create(&chat).Error; err != nil {
-		return nil, apperror.InternalServerError(err, "Failed to create a chat")
+		return nil, apperror.InternalServerError(err, "Failed to create chat")
 	}
 	return &chat, nil
 }
