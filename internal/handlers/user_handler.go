@@ -28,7 +28,7 @@ func NewUserHandler(service ports.UserService) ports.UserHandler {
 // @Failure 400 {object} dto.ErrorResponse "your request is invalid or your request body is incorrect or cannot save user"
 // @Failure 409 {object} dto.ErrorResponse "username already exists"
 // @Failure 500 {object} dto.ErrorResponse "cannot use this password"
-// @Router /auth/register [post]
+// @Router /register [post]
 func (h *UserHandler) Register(c *fiber.Ctx) error {
 	user := new(dto.RegisterRequestBody)
 	err := c.BodyParser(&user)
