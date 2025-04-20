@@ -30,7 +30,7 @@ func NewUserHandler(service ports.UserService) ports.UserHandler {
 // @Failure 500 {object} dto.ErrorResponse "cannot use this password"
 // @Router /auth/register [post]
 func (h *UserHandler) Register(c *fiber.Ctx) error {
-	user := new(dto.AuthBody)
+	user := new(dto.RegisterRequestBody)
 	err := c.BodyParser(&user)
 	if err != nil {
 		return apperror.BadRequestError(err, "your request is invalid")
@@ -61,7 +61,7 @@ func (h *UserHandler) Register(c *fiber.Ctx) error {
 // @Failure 500 {object} dto.ErrorResponse "cannot use this password"
 // @Router /auth/login [post]
 func (h *UserHandler) Login(c *fiber.Ctx) error {
-	body := new(dto.AuthBody)
+	body := new(dto.LoginRequestBody)
 	err := c.BodyParser(&body)
 	if err != nil {
 		return apperror.BadRequestError(err, "your request is invalid")
