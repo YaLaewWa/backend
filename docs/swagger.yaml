@@ -49,7 +49,7 @@ definitions:
         minLength: 8
         type: string
       username:
-        minLength: 4
+        minLength: 3
         type: string
     required:
     - password
