@@ -90,5 +90,21 @@ func (h *ChatHandler) GetChats(c *fiber.Ctx) error {
 }
 
 func (h *ChatHandler) GetChatMembers(c *fiber.Ctx) error {
-	panic("unimplemented")
+	chatID, err := util.ParseIdParam(c)
+	if err != nil {
+		return err
+	}
+	page, limit := util.PaginationQuery(c)
+
+	members, totalPages, totalRows, err := h.service.GetChatMembers(chatID, limit, page)
+	if err != nil {
+		return err
+	}
+
+	res := make([]dto.UserResponse, len(members))
+	for i, member := range members {
+		res[i] = *member.ToDTO()
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.SuccessPagination(res, page, totalPages, limit, totalRows))
 }
