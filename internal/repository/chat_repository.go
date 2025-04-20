@@ -3,8 +3,10 @@ package repository
 import (
 	"socket/internal/core/domain"
 	"socket/internal/core/ports"
+	"socket/internal/database"
 	"socket/pkg/apperror"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -28,7 +30,14 @@ func (c *ChatRepository) Create(name string, users []domain.User, isGroup bool) 
 	return &chat, nil
 }
 
-// func (c *ChatRepository) GetChatMembers(chatID uuid.UUID, limit int, page int) ([]domain.User, int, int, error) {
-// 	var chat domain.Chat
-// 	if err := c.db.Preload("Members").First(&chat, chatID).Error
-// }
+func (c *ChatRepository) GetChatMembers(chatID uuid.UUID, limit int, page int) ([]domain.User, int, int, error) {
+	var members []domain.User
+	var total, last int
+
+	if err := c.db.Joins("JOIN chat_members cm ON cm.user_id = users.id").Where("cm.chat_id = ?", chatID).
+		Scopes(database.Paginate(domain.User{}, &limit, &page, &total, &last)).Find(&members).Error; err != nil {
+		return nil, 0, 0, apperror.InternalServerError(err, "Failed to retrieve messages")
+	}
+	return members, last, total, nil
+
+}
