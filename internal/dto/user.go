@@ -11,7 +11,7 @@ type UserWithTokenResponse struct {
 
 type RegisterRequestBody struct {
 	Password string `json:"password" validate:"required,min=8"`
-	UserName string `json:"username" validate:"required,min=3"`
+	UserName string `json:"username" validate:"required,min=1"`
 }
 
 type LoginRequestBody struct {
