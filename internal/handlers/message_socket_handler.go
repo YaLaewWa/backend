@@ -107,7 +107,9 @@ func (h MessageSocketHandler) GetByChatID(c *fiber.Ctx) error {
 
 	page, limit := util.PaginationQuery(c)
 
-	msgs, totalPages, totalRows, err := h.service.GetByChatID(chatID, limit, page)
+	userID := c.Locals("userID").(uuid.UUID)
+
+	msgs, totalPages, totalRows, err := h.service.GetByChatID(chatID, limit, page, userID)
 	if err != nil {
 		return err
 	}

@@ -15,7 +15,7 @@ type MessageRepository interface {
 
 type MessageService interface {
 	Create(msg *domain.Message) error
-	GetByChatID(chatID uuid.UUID, limit int, page int) ([]domain.Message, int, int, error)
+	GetByChatID(chatID uuid.UUID, limit int, page int, userID uuid.UUID) ([]domain.Message, int, int, error)
 }
 
 type MessageSocketHandler interface {
