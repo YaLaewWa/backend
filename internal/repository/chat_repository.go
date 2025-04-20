@@ -7,6 +7,7 @@ import (
 	"socket/pkg/apperror"
 
 	"github.com/google/uuid"
+	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
 
@@ -62,4 +63,24 @@ func (c *ChatRepository) AddUserToChat(chatID uuid.UUID, userID uuid.UUID) error
 		return apperror.InternalServerError(err, "Failed to add user to chat")
 	}
 	return nil
+}
+
+func (c *ChatRepository) GetByID(chatID uuid.UUID) (*domain.Chat, error) {
+	chat := new(domain.Chat)
+	if err := c.db.Preload("Members").First(chat, chatID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.NotFoundError(err, "Chat not found")
+		}
+		return nil, apperror.InternalServerError(err, "Failed to retrieve chat")
+	}
+	return chat, nil
+}
+
+func (c *ChatRepository) IsUserInConversation(chatID, userID uuid.UUID) (bool, error) {
+	var count int64
+	err := c.db.Table("chat_memebers").Where("chat_id = ? AND user_id = ?", chatID, userID).Count(&count).Error
+	if err != nil {
+		return false, apperror.InternalServerError(err, "Failed to verify membership")
+	}
+	return count > 0, nil
 }

@@ -11,6 +11,8 @@ type ChatRepository interface {
 	GetChatMembers(chatID uuid.UUID, limit int, page int) ([]domain.User, int, int, error)
 	GetChatByUserID(userID uuid.UUID, limit int, page int) ([]domain.Chat, int, int, error)
 	AddUserToChat(chatID uuid.UUID, userID uuid.UUID) error
+	GetByID(chatID uuid.UUID) (*domain.Chat, error)
+	IsUserInConversation(chatID, userID uuid.UUID) (bool, error)
 }
 
 type ChatService interface {
