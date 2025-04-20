@@ -23,7 +23,7 @@ func (s *Server) initSocket() {
 
 func (s *Server) initAuth() {
 	authRoutes := s.app.Group("/auth")
-	authRoutes.Post("/register", s.handler.userHandler.Register)
+	s.app.Post("/register", s.handler.userHandler.Register)
 	authRoutes.Post("/login", s.handler.userHandler.Login)
 }
 
