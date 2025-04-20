@@ -21,7 +21,7 @@ type ChatService interface {
 	CreateGroupChat(name string, userIDs []uuid.UUID) (*domain.Chat, error)
 	GetChatMembers(chatID uuid.UUID, limit int, page int) ([]domain.User, int, int, error)
 	GetChatsByUserID(userID uuid.UUID, limit int, page int) ([]domain.Chat, int, int, error)
-	AddUserToChat(chatID uuid.UUID, userID uuid.UUID) error
+	AddUserToChat(chatID uuid.UUID, userID uuid.UUID) (*domain.Chat, error)
 }
 
 type ChatHandler interface {

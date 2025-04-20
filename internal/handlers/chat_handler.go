@@ -26,12 +26,12 @@ func (h *ChatHandler) JoinChat(c *fiber.Ctx) error {
 		return err
 	}
 
-	err = h.service.AddUserToChat(chatID, userID)
+	chat, err := h.service.AddUserToChat(chatID, userID)
 	if err != nil {
 		return err
 	}
 
-	return c.SendStatus(fiber.StatusOK)
+	return c.Status(fiber.StatusOK).JSON(dto.Success(chat.ToDTO()))
 }
 
 func (h *ChatHandler) CreateDirectChat(c *fiber.Ctx) error {
