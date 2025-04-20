@@ -30,7 +30,7 @@ func (m *MessageService) GetByChatID(chatID uuid.UUID, limit int, page int, user
 	}
 
 	// Check if user is a member of chat or not
-	isMember, err := m.chatRepo.IsUserInConversation(chatID, userID)
+	isMember, err := m.chatRepo.IsUserInChat(chatID, userID)
 	if err != nil {
 		return nil, 0, 0, err
 	}

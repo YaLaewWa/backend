@@ -81,9 +81,9 @@ func (c *ChatRepository) GetByID(chatID uuid.UUID) (*domain.Chat, error) {
 	return chat, nil
 }
 
-func (c *ChatRepository) IsUserInConversation(chatID, userID uuid.UUID) (bool, error) {
+func (c *ChatRepository) IsUserInChat(chatID, userID uuid.UUID) (bool, error) {
 	var count int64
-	err := c.db.Table("chat_memebers").Where("chat_id = ? AND user_id = ?", chatID, userID).Count(&count).Error
+	err := c.db.Table("chat_members").Where("chat_id = ? AND user_id = ?", chatID, userID).Count(&count).Error
 	if err != nil {
 		return false, apperror.InternalServerError(err, "Failed to verify membership")
 	}

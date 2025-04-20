@@ -30,7 +30,7 @@ func (c *ChatService) AddUserToChat(chatID uuid.UUID, userID uuid.UUID) (*domain
 	}
 
 	// Check if user is already in the chat or not
-	isMember, err := c.repo.IsUserInConversation(chatID, userID)
+	isMember, err := c.repo.IsUserInChat(chatID, userID)
 	if err != nil {
 		return nil, err
 	}
