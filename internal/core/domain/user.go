@@ -17,6 +17,7 @@ type User struct {
 
 func (u *User) ToDTO() *dto.UserResponse {
 	dto := &dto.UserResponse{
+		ID:       u.ID,
 		Username: u.Username,
 	}
 	return dto
