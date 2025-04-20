@@ -36,8 +36,21 @@ func (c *ChatRepository) GetChatMembers(chatID uuid.UUID, limit int, page int) (
 
 	if err := c.db.Joins("JOIN chat_members cm ON cm.user_id = users.id").Where("cm.chat_id = ?", chatID).
 		Scopes(database.Paginate(domain.User{}, &limit, &page, &total, &last)).Find(&members).Error; err != nil {
-		return nil, 0, 0, apperror.InternalServerError(err, "Failed to retrieve messages")
+		return nil, 0, 0, apperror.InternalServerError(err, "Failed to retrieve chat's members")
 	}
 	return members, last, total, nil
 
+}
+
+func (c *ChatRepository) GetChatByUserID(userID uuid.UUID, limit int, page int) ([]domain.Chat, int, int, error) {
+	var chats []domain.Chat
+	var total, last int
+
+	if err := c.db.Joins("JOIN chat_members cm ON cm.chat_id = chats.id").Where("cm.user_id = ?", userID).
+		Preload("Members").Scopes(database.Paginate(&domain.Chat{}, &limit, &page, &total, &last)).
+		Find(&chats).Error; err != nil {
+		return nil, 0, 0, apperror.InternalServerError(err, "Failed to retrieve user's chats")
+	}
+
+	return chats, last, total, nil
 }
