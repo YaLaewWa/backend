@@ -23,7 +23,7 @@ func NewUserHandler(service ports.UserService) ports.UserHandler {
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Param user body dto.AuthBody true "Description of the authentication body"
+// @Param user body dto.RegisterRequestBody true "Description of the authentication body"
 // @Success 201 {object} dto.SuccessResponse[dto.UserResponse] "register successfully"
 // @Failure 400 {object} dto.ErrorResponse "your request is invalid or your request body is incorrect or cannot save user"
 // @Failure 409 {object} dto.ErrorResponse "username already exists"
@@ -55,7 +55,7 @@ func (h *UserHandler) Register(c *fiber.Ctx) error {
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Param user body dto.AuthBody true "Description of the authentication body"
+// @Param user body dto.LoginRequestBody true "Description of the authentication body"
 // @Success 200 {object} dto.SuccessResponse[dto.UserWithTokenResponse] "successfully login"
 // @Failure 400 {object} dto.ErrorResponse "your request is invalid or your request body is incorrect or cannot save user"
 // @Failure 500 {object} dto.ErrorResponse "cannot use this password"
