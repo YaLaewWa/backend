@@ -38,12 +38,11 @@ func (c *ChatService) AddUserToChat(chatID uuid.UUID, userID uuid.UUID) (*domain
 		return nil, apperror.ConflictError(errors.New("conflict"), "You are already in this chat")
 	}
 
-	chat, err = c.repo.GetByID(chatID)
-	if err != nil {
+	if err = c.repo.AddUserToChat(chatID, userID); err != nil {
 		return nil, err
 	}
 
-	return chat, c.repo.AddUserToChat(chatID, userID)
+	return c.repo.GetByID(chatID)
 }
 
 func (c *ChatService) CreateDirectChat(user1 uuid.UUID, user2 uuid.UUID) (*domain.Chat, error) {
