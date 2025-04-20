@@ -48,7 +48,7 @@ func (c *ChatRepository) GetChatMembers(chatID uuid.UUID, limit int, page int) (
 
 }
 
-func (c *ChatRepository) GetChatByUserID(userID uuid.UUID, limit int, page int) ([]domain.Chat, int, int, error) {
+func (c *ChatRepository) GetChatsByUserID(userID uuid.UUID, limit int, page int) ([]domain.Chat, int, int, error) {
 	var chats []domain.Chat
 	var total, last int
 

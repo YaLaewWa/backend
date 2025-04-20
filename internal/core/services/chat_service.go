@@ -50,8 +50,8 @@ func (c *ChatService) CreateGroupChat(name string, userIDs []uuid.UUID) (*domain
 	return c.repo.Create(name, userIDs, true)
 }
 
-func (c *ChatService) GetChatByUserID(userID uuid.UUID, limit int, page int) ([]domain.Chat, int, int, error) {
-	return c.repo.GetChatByUserID(userID, limit, page)
+func (c *ChatService) GetChatsByUserID(userID uuid.UUID, limit int, page int) ([]domain.Chat, int, int, error) {
+	return c.repo.GetChatsByUserID(userID, limit, page)
 }
 
 func (c *ChatService) GetChatMembers(chatID uuid.UUID, limit int, page int) ([]domain.User, int, int, error) {
