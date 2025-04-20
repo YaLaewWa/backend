@@ -19,8 +19,19 @@ func NewChatHandler(service ports.ChatService) ports.ChatHandler {
 	return &ChatHandler{service: service}
 }
 
-func (h *ChatHandler) AddUserToChat(c *fiber.Ctx) error {
-	panic("unimplemented")
+func (h *ChatHandler) JoinChat(c *fiber.Ctx) error {
+	userID := c.Locals("userID").(uuid.UUID)
+	chatID, err := util.ParseIdParam(c)
+	if err != nil {
+		return err
+	}
+
+	err = h.service.AddUserToChat(chatID, userID)
+	if err != nil {
+		return err
+	}
+
+	return c.SendStatus(fiber.StatusOK)
 }
 
 func (h *ChatHandler) CreateDirectChat(c *fiber.Ctx) error {

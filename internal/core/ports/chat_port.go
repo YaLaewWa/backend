@@ -29,5 +29,5 @@ type ChatHandler interface {
 	CreateGroupChat(c *fiber.Ctx) error
 	GetChatMembers(c *fiber.Ctx) error
 	GetChats(c *fiber.Ctx) error
-	AddUserToChat(c *fiber.Ctx) error
+	JoinChat(c *fiber.Ctx) error
 }
