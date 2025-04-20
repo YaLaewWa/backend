@@ -1,0 +1,58 @@
+package services
+
+import (
+	"errors"
+	"socket/internal/core/domain"
+	"socket/internal/core/ports"
+	"socket/pkg/apperror"
+
+	"github.com/google/uuid"
+)
+
+type ChatService struct {
+	repo ports.ChatRepository
+}
+
+func NewChatService(repo ports.ChatRepository) ports.ChatService {
+	return &ChatService{repo: repo}
+}
+
+func (c *ChatService) AddUserToChat(chatID uuid.UUID, userID uuid.UUID) error {
+	// Check if chat exist or not
+	chat, err := c.repo.GetByID(chatID)
+	if err != nil {
+		return err
+	}
+
+	// Check if the chat is a group chat or not
+	if !chat.IsGroup {
+		return apperror.ForbiddenError(errors.New("forbidden"), "You are not allowed to join a direct chat")
+	}
+
+	// Check if user is already in the chat or not
+	isMember, err := c.repo.IsUserInConversation(chatID, userID)
+	if err != nil {
+		return err
+	}
+	if isMember {
+		return apperror.ConflictError(errors.New("conflict"), "You are already in this chat")
+	}
+
+	return c.repo.AddUserToChat(chatID, userID)
+}
+
+func (c *ChatService) CreateDirectChat(user1 uuid.UUID, user2 uuid.UUIDs) (*domain.Chat, error) {
+	panic("unimplemented")
+}
+
+func (c *ChatService) CreateGroupChat(name string, userIDs []uuid.UUID) (*domain.Chat, error) {
+	panic("unimplemented")
+}
+
+func (c *ChatService) GetChatByUserID(userID uuid.UUID, limit int, page int) ([]domain.Chat, int, int, error) {
+	panic("unimplemented")
+}
+
+func (c *ChatService) GetChatMembers(chatID uuid.UUID, limit int, page int) ([]domain.User, int, int, error) {
+	panic("unimplemented")
+}
