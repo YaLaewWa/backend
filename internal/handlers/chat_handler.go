@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"errors"
+	"slices"
 	"socket/internal/core/ports"
 	"socket/internal/dto"
 	"socket/pkg/apperror"
@@ -36,26 +38,15 @@ func (h *ChatHandler) JoinChat(c *fiber.Ctx) error {
 }
 
 func (h *ChatHandler) CreateDirectChat(c *fiber.Ctx) error {
-	req := new(dto.CreateDirectChatRequest)
-	if err := c.BodyParser(req); err != nil {
-		return apperror.BadRequestError(err, "Invalid input")
-	}
-
-	validate := validator.New()
-	if err := validate.Struct(req); err != nil {
-		return apperror.UnprocessableEntityError(err, "Validation failed")
-	}
-
-	chat, err := h.service.CreateDirectChat(req.User1, req.User2)
-	if err != nil {
-		return err
-	}
-
-	return c.Status(fiber.StatusCreated).JSON(dto.Success(chat.ToDTO()))
+	return h.createChat(c, false)
 }
 
 func (h *ChatHandler) CreateGroupChat(c *fiber.Ctx) error {
-	req := new(dto.CreateGroupChatRequest)
+	return h.createChat(c, true)
+}
+
+func (h *ChatHandler) createChat(c *fiber.Ctx, isGroup bool) error {
+	req := new(dto.CreateChatRequest)
 	if err := c.BodyParser(req); err != nil {
 		return apperror.BadRequestError(err, "Invalid input")
 	}
@@ -65,7 +56,18 @@ func (h *ChatHandler) CreateGroupChat(c *fiber.Ctx) error {
 		return apperror.UnprocessableEntityError(err, "Validation failed")
 	}
 
-	chat, err := h.service.CreateGroupChat(req.Name, req.UserIDs)
+	// Check if user creating chat including themselves or not
+	userID := c.Locals("userID").(uuid.UUID)
+	if !slices.Contains(req.UserIDs, userID) {
+		return apperror.UnprocessableEntityError(errors.New("validation failed"), "You can not create chat without you in it")
+	}
+
+	// Not sure if will have user amount check in group chat yet or not
+	if !isGroup && len(req.UserIDs) != 2 {
+		return apperror.UnprocessableEntityError(errors.New("validation failed"), "You can not create direct message chat with less or more than 2 users")
+	}
+
+	chat, err := h.service.CreateChat(req.Name, req.UserIDs, isGroup)
 	if err != nil {
 		return err
 	}

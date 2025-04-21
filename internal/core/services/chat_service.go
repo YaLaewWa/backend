@@ -45,13 +45,8 @@ func (c *ChatService) AddUserToChat(chatID uuid.UUID, userID uuid.UUID) (*domain
 	return c.repo.GetByID(chatID)
 }
 
-func (c *ChatService) CreateDirectChat(user1 uuid.UUID, user2 uuid.UUID) (*domain.Chat, error) {
-	// What name should a direct chat have? If we even have a name for a chat.
-	return c.repo.Create("", []uuid.UUID{user1, user2}, false)
-}
-
-func (c *ChatService) CreateGroupChat(name string, userIDs []uuid.UUID) (*domain.Chat, error) {
-	return c.repo.Create(name, userIDs, true)
+func (c *ChatService) CreateChat(name string, userIDs []uuid.UUID, isGroup bool) (*domain.Chat, error) {
+	return c.repo.Create(name, userIDs, isGroup)
 }
 
 func (c *ChatService) GetChatsByUserID(userID uuid.UUID, limit int, page int) ([]domain.Chat, int, int, error) {

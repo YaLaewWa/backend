@@ -17,8 +17,7 @@ type ChatRepository interface {
 }
 
 type ChatService interface {
-	CreateDirectChat(user1 uuid.UUID, user2 uuid.UUID) (*domain.Chat, error)
-	CreateGroupChat(name string, userIDs []uuid.UUID) (*domain.Chat, error)
+	CreateChat(name string, userIDs []uuid.UUID, isGroup bool) (*domain.Chat, error)
 	GetChatMembers(chatID uuid.UUID, limit int, page int) ([]domain.User, int, int, error)
 	GetChatsByUserID(userID uuid.UUID, limit int, page int) ([]domain.Chat, int, int, error)
 	AddUserToChat(chatID uuid.UUID, userID uuid.UUID) (*domain.Chat, error)
