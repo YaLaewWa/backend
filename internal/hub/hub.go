@@ -1,5 +1,10 @@
 package hub
 
+import (
+	"encoding/json"
+	"log"
+)
+
 type RegisterPayload struct {
 	Channel  chan []byte
 	Username string
@@ -26,12 +31,63 @@ func (h *Hub) Run() {
 		select {
 		case User := <-h.Register:
 			h.Clients[User.Username] = User.Channel
-		case ID := <-h.Unregister:
-			delete(h.Clients, ID)
+			h.sendOnlineUsers(User.Username)
+			h.broadcastUser(User.Username)
+		case username := <-h.Unregister:
+			delete(h.Clients, username)
+			h.broadcastUser(username)
 		case msg := <-h.Broadcast:
 			for id := range h.Clients {
 				h.Clients[id] <- msg
 			}
 		}
 	}
+}
+
+// send list of online users to user with username
+func (h *Hub) sendOnlineUsers(username string) {
+	onlineUsers := []string{}
+	for username := range h.Clients {
+		onlineUsers = append(onlineUsers, username)
+	}
+
+	msg := map[string]interface{}{
+		"type":         "online_users",
+		"online_users": onlineUsers,
+	}
+
+	data, err := json.Marshal(msg)
+	if err != nil {
+		log.Println("error: ", err)
+	} else {
+		h.Clients[username] <- data
+	}
+}
+
+// broadcast to all user that a user with username register or unregister from the hub
+func (h *Hub) broadcastUser(username string) {
+	var msgType string
+	_, ok := h.Clients[username]
+	if ok {
+		msgType = "user_login"
+	} else {
+		msgType = "user_logout"
+	}
+
+	msg := map[string]interface{}{
+		"type":     msgType,
+		"username": username,
+	}
+
+	data, err := json.Marshal(msg)
+	if err != nil {
+		log.Println("error: ", err)
+	} else {
+		for u := range h.Clients {
+			if u != username {
+				h.Clients[u] <- data
+			}
+		}
+	}
+
 }
