@@ -32,10 +32,10 @@ func (h *Hub) Run() {
 		case User := <-h.Register:
 			h.Clients[User.Username] = User.Channel
 			h.sendOnlineUsers(User.Username)
-			h.broadcastUser(User.Username, true)
+			h.broadcastUser(User.Username)
 		case username := <-h.Unregister:
 			delete(h.Clients, username)
-			h.broadcastUser(username, false)
+			h.broadcastUser(username)
 		case msg := <-h.Broadcast:
 			for id := range h.Clients {
 				h.Clients[id] <- msg
@@ -65,9 +65,10 @@ func (h *Hub) sendOnlineUsers(username string) {
 }
 
 // broadcast to all user that a user with username register or unregister from the hub
-func (h *Hub) broadcastUser(username string, register bool) {
+func (h *Hub) broadcastUser(username string) {
 	var msgType string
-	if register {
+	_, ok := h.Clients[username]
+	if ok {
 		msgType = "user_login"
 	} else {
 		msgType = "user_logout"
