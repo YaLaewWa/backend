@@ -1,7 +1,10 @@
 package dto
 
+import "github.com/google/uuid"
+
 type UserResponse struct {
-	Username string `json:"username"`
+	ID       uuid.UUID `json:"id"`
+	Username string    `json:"username"`
 }
 
 type UserWithTokenResponse struct {

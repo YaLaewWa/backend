@@ -10,6 +10,7 @@ import (
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 type MessageSocketHandler struct {
@@ -89,10 +90,18 @@ func (h MessageSocketHandler) writePump(c *websocket.Conn, channel chan []byte) 
 // @Success 200 {object} dto.PaginationResponse[dto.MessageResponse] "Messages retrieved successfully"
 // @Failure 500 {object} dto.ErrorResponse "Failed to retrieve messages"
 // @Router /messages [get]
-func (h MessageSocketHandler) GetAll(c *fiber.Ctx) error {
+func (h MessageSocketHandler) GetByChatID(c *fiber.Ctx) error {
+	id := c.Params("id")
+	chatID, err := util.ParseIdParam(id)
+	if err != nil {
+		return err
+	}
+
 	page, limit := util.PaginationQuery(c)
 
-	msgs, totalPages, totalRows, err := h.service.GetAll(limit, page)
+	userID := c.Locals("userID").(uuid.UUID)
+
+	msgs, totalPages, totalRows, err := h.service.GetByChatID(chatID, limit, page, userID)
 	if err != nil {
 		return err
 	}

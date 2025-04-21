@@ -12,7 +12,7 @@ func (s *Server) initRoutes() {
 	s.initSocket()
 	s.initAuth()
 	s.initSwagger()
-	s.initMessage()
+	s.initChat()
 }
 
 func (s *Server) initSocket() {
@@ -32,7 +32,12 @@ func (s *Server) initSwagger() {
 	s.app.Get("/swagger/*", swagger.HandlerDefault) // default
 }
 
-func (s *Server) initMessage() {
-	messageRoutes := s.app.Group("/messages", s.middleware.Auth)
-	messageRoutes.Get("/", s.handler.socketMessageHandler.GetAll)
+func (s *Server) initChat() {
+	chatRoutes := s.app.Group("/chats", s.middleware.Auth)
+	chatRoutes.Get("/", s.handler.chatHandler.GetChats)
+	chatRoutes.Get("/:id/messages", s.handler.socketMessageHandler.GetByChatID)
+	chatRoutes.Get("/:id/members", s.handler.chatHandler.GetChatMembers)
+	chatRoutes.Post("/direct", s.handler.chatHandler.CreateDirectChat)
+	chatRoutes.Post("/group", s.handler.chatHandler.CreateGroupChat)
+	chatRoutes.Post("/:id/join", s.handler.chatHandler.JoinChat)
 }
