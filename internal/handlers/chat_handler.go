@@ -21,7 +21,8 @@ func NewChatHandler(service ports.ChatService) ports.ChatHandler {
 
 func (h *ChatHandler) JoinChat(c *fiber.Ctx) error {
 	userID := c.Locals("userID").(uuid.UUID)
-	chatID, err := util.ParseIdParam(c)
+	id := c.Params("id")
+	chatID, err := util.ParseIdParam(id)
 	if err != nil {
 		return err
 	}
@@ -90,7 +91,8 @@ func (h *ChatHandler) GetChats(c *fiber.Ctx) error {
 }
 
 func (h *ChatHandler) GetChatMembers(c *fiber.Ctx) error {
-	chatID, err := util.ParseIdParam(c)
+	id := c.Params("id")
+	chatID, err := util.ParseIdParam(id)
 	if err != nil {
 		return err
 	}

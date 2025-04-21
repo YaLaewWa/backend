@@ -91,7 +91,8 @@ func (h MessageSocketHandler) writePump(c *websocket.Conn, channel chan []byte) 
 // @Failure 500 {object} dto.ErrorResponse "Failed to retrieve messages"
 // @Router /messages [get]
 func (h MessageSocketHandler) GetByChatID(c *fiber.Ctx) error {
-	chatID, err := util.ParseIdParam(c)
+	id := c.Params("id")
+	chatID, err := util.ParseIdParam(id)
 	if err != nil {
 		return err
 	}

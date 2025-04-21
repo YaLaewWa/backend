@@ -23,8 +23,7 @@ func PaginationQuery(c *fiber.Ctx) (int, int) {
 	return page, limit
 }
 
-func ParseIdParam(c *fiber.Ctx) (uuid.UUID, error) {
-	id := c.Params("id")
+func ParseIdParam(id string) (uuid.UUID, error) {
 	if err := uuid.Validate(id); err != nil {
 		return uuid.Nil, apperror.BadRequestError(err, "Invalid ID format")
 	}
