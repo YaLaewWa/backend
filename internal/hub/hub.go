@@ -5,6 +5,7 @@ import (
 	"log"
 	"socket/internal/core/domain"
 	"socket/internal/dto"
+	"sync"
 
 	"github.com/google/uuid"
 )
@@ -15,10 +16,11 @@ type RegisterPayload struct {
 }
 
 type Hub struct {
-	Clients    map[string]chan []byte
-	Register   chan *RegisterPayload
-	Unregister chan string
-	Broadcast  chan domain.HubMessage
+	Clients     map[string]chan []byte
+	Register    chan *RegisterPayload
+	Unregister  chan string
+	Broadcast   chan domain.HubMessage
+	ClientMutex sync.Mutex
 }
 
 func NewHub() *Hub {
