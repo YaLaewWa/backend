@@ -44,3 +44,20 @@ func (c *ChatWithMembership) ToDTO(members []dto.UserResponse) dto.ChatResponse 
 		Members: members,
 	}
 }
+
+func (c *Chat) ToSocketDTO(isCreater bool) dto.ChatSocket {
+	members := make([]dto.UserResponse, len(c.Members))
+	for i, member := range c.Members {
+		members[i] = *member.ToDTO()
+	}
+
+	return dto.ChatSocket{
+		Type: "new_group",
+		Payload: dto.ChatPayload{
+			ID:      c.ID,
+			Name:    c.Name,
+			Joined:  isCreater,
+			Members: members,
+		},
+	}
+}

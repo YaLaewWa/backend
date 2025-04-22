@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"log"
 	"socket/internal/core/domain"
+	"socket/internal/dto"
+
+	"github.com/google/uuid"
 )
 
 type RegisterPayload struct {
@@ -38,13 +41,40 @@ func (h *Hub) Run() {
 			delete(h.Clients, username)
 			h.broadcastUser(username)
 		case msg := <-h.Broadcast:
-			for _, member := range msg.To {
-				if _, ok := h.Clients[member.Username]; ok {
-					data, err := json.Marshal(msg.Message.ToDTO())
+			if msg.Type == "message" {
+				for _, member := range msg.To {
+					if _, ok := h.Clients[member.Username]; ok {
+						message := msg.Payload.(domain.Message)
+						data, err := json.Marshal(message.ToDTO())
+						if err != nil {
+							log.Println("error: ", err)
+						} else {
+							h.Clients[member.Username] <- data
+						}
+					}
+				}
+			} else if msg.Type == "new_group" {
+				for username := range h.Clients {
+					payload := msg.Payload.(map[string]any)
+					group := payload["chat"].(*domain.Chat)
+					creator := payload["creator"].(string)
+					data, err := json.Marshal(group.ToSocketDTO(username == creator))
 					if err != nil {
-						log.Println("errror: ", err)
+						log.Println("error:", err)
 					} else {
-						h.Clients[member.Username] <- data
+						h.Clients[username] <- data
+					}
+				}
+			} else if msg.Type == "new_user_group" {
+				for username := range h.Clients {
+					payload := msg.Payload.(map[string]any)
+					chatID := payload["chatID"].(uuid.UUID)
+					joiner := payload["joiner"].(string)
+					data, err := json.Marshal(dto.GetJoinSocketDTO(chatID, joiner))
+					if err != nil {
+						log.Println("error:", err)
+					} else {
+						h.Clients[username] <- data
 					}
 				}
 			}

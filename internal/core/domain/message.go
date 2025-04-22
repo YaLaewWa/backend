@@ -27,6 +27,7 @@ func (m *Message) ToDTO() dto.MessageResponse {
 }
 
 type HubMessage struct {
-	Message Message
+	Type    string
+	Payload any
 	To      []User
 }
