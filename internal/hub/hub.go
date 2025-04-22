@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"socket/internal/core/domain"
+	"sync"
 )
 
 type RegisterPayload struct {
@@ -16,6 +17,7 @@ type Hub struct {
 	Register   chan *RegisterPayload
 	Unregister chan string
 	Broadcast  chan domain.HubMessage
+	Mutex      *sync.Mutex
 }
 
 func NewHub() *Hub {
