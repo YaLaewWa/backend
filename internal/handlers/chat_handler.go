@@ -47,6 +47,19 @@ func (h *ChatHandler) JoinChat(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	payload = make(map[string]any)
+	queues, err := h.queueService.Get(username)
+	if err != nil {
+		return err
+	}
+	var queueDTO []dto.QueueResponse
+	for _, o := range queues {
+		queueDTO = append(queueDTO, o.ToDTO())
+	}
+	payload["queue"] = queueDTO
+	h.hub.BrodcastMutex.Lock()
+	h.hub.Broadcast <- domain.HubMessage{Type: "sidebar_update", Payload: payload, To: []domain.User{{Username: username}}}
+	h.hub.BrodcastMutex.Unlock()
 
 	return c.Status(fiber.StatusOK).JSON(dto.Success(chat.ToDTO()))
 }
