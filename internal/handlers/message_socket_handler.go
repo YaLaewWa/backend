@@ -60,7 +60,11 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 		}
 
 		var input dto.MessageRequest
-		json.Unmarshal(msg, &input)
+		err = json.Unmarshal(msg, &input)
+		if err != nil {
+			log.Println("error: ", err)
+			continue
+		}
 
 		savedMsg, err := h.message.Create(username, input.ChatID, input.Content)
 		if err != nil {
