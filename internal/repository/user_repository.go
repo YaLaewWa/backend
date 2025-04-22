@@ -5,7 +5,6 @@ import (
 	"socket/internal/core/ports"
 	"socket/pkg/apperror"
 
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
@@ -38,19 +37,6 @@ func (r *UserRepository) GetUserByUsername(userName string) (*domain.User, error
 	var user domain.User
 	result := r.db.Where("username = ?", userName).First(&user)
 
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, apperror.NotFoundError(result.Error, "user not found")
-		}
-		return nil, apperror.InternalServerError(result.Error, "cannot get user")
-	}
-
-	return &user, nil
-}
-
-func (r *UserRepository) GetUserByID(userID uuid.UUID) (*domain.User, error) {
-	var user domain.User
-	result := r.db.Where("id = ?", userID).First(&user)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, apperror.NotFoundError(result.Error, "user not found")

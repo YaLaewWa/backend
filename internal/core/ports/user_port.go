@@ -4,7 +4,6 @@ import (
 	"socket/internal/core/domain"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
 type UserHandler interface {
@@ -19,6 +18,5 @@ type UserService interface {
 
 type UserRepository interface {
 	Create(user *domain.User) error
-	GetUserByID(userID uuid.UUID) (*domain.User, error)
 	GetUserByUsername(userName string) (*domain.User, error)
 }

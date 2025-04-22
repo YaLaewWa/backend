@@ -27,7 +27,7 @@ func (m *MessageService) Create(sender string, chatID uuid.UUID, content string)
 	return msg, m.msgRepo.Create(msg)
 }
 
-func (m *MessageService) GetByChatID(chatID uuid.UUID, limit int, page int, userID uuid.UUID) ([]domain.Message, int, int, error) {
+func (m *MessageService) GetByChatID(chatID uuid.UUID, limit int, page int, username string) ([]domain.Message, int, int, error) {
 	// Check if chat exist or not
 	_, err := m.chatRepo.GetByID(chatID)
 	if err != nil {
@@ -35,7 +35,7 @@ func (m *MessageService) GetByChatID(chatID uuid.UUID, limit int, page int, user
 	}
 
 	// Check if user is a member of chat or not
-	isMember, err := m.chatRepo.IsUserInChat(chatID, userID)
+	isMember, err := m.chatRepo.IsUserInChat(chatID, username)
 	if err != nil {
 		return nil, 0, 0, err
 	}

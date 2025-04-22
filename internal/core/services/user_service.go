@@ -40,7 +40,7 @@ func (s *UserService) Login(userName, password string) (*domain.User, string, er
 	if compareErr != nil {
 		return nil, "", apperror.UnauthorizedError(compareErr, "invalid email or password.")
 	}
-	jwt, err := s.jwt.GenerateJWT(user.ID)
+	jwt, err := s.jwt.GenerateJWT(user.Username)
 	if err != nil {
 		return nil, "", err
 	}

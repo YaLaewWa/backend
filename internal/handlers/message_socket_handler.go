@@ -11,7 +11,6 @@ import (
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
 type MessageSocketHandler struct {
@@ -66,6 +65,15 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 			continue
 		}
 
+		isMember, err := h.chat.IsUserInChat(input.ChatID, username)
+		if err != nil {
+			log.Println("error: ", err)
+			continue
+		} else if !isMember {
+			log.Println(username, "tried to send message to chat they aren't in.")
+			continue
+		}
+
 		savedMsg, err := h.message.Create(username, input.ChatID, input.Content)
 		if err != nil {
 			log.Println("error: ", err)
@@ -113,9 +121,9 @@ func (h MessageSocketHandler) GetByChatID(c *fiber.Ctx) error {
 
 	page, limit := util.PaginationQuery(c)
 
-	userID := c.Locals("userID").(uuid.UUID)
+	username := c.Locals("username").(string)
 
-	msgs, totalPages, totalRows, err := h.message.GetByChatID(chatID, limit, page, userID)
+	msgs, totalPages, totalRows, err := h.message.GetByChatID(chatID, limit, page, username)
 	if err != nil {
 		return err
 	}

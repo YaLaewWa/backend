@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/google/uuid"
 )
 
 type JWTConfig struct {
@@ -19,16 +18,16 @@ type JWTUtils struct {
 
 type JWTClaims struct {
 	jwt.RegisteredClaims
-	UserID string `json:"userID"`
+	Username string `json:"username"`
 }
 
 func NewJWTUtils(config *JWTConfig) *JWTUtils {
 	return &JWTUtils{Config: config}
 }
 
-func (j *JWTUtils) GenerateJWT(userID uuid.UUID) (string, error) {
+func (j *JWTUtils) GenerateJWT(username string) (string, error) {
 	claims := &JWTClaims{
-		UserID: userID.String(),
+		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt: jwt.NewNumericDate(time.Now()),
 		},

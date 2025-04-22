@@ -9,7 +9,6 @@ import (
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
 type AuthMiddleware struct {
@@ -41,17 +40,14 @@ func (a *AuthMiddleware) Auth(ctx *fiber.Ctx) error {
 		return apperror.UnauthorizedError(err, "Invalid token")
 	}
 
-	userID, err := uuid.Parse(claims.UserID)
-	if err != nil {
-		return apperror.UnauthorizedError(err, "Invalid token")
-	}
+	username := claims.Username
 
-	user, err := a.userRepo.GetUserByID(userID)
+	user, err := a.userRepo.GetUserByUsername(username)
 	if err != nil {
 		return apperror.UnauthorizedError(err, "User not found")
 	}
 
-	ctx.Locals("userID", userID)
+	ctx.Locals("username", username)
 	ctx.Locals("user", user)
 
 	return ctx.Next()
