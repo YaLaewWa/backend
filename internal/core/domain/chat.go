@@ -24,5 +24,23 @@ func (c *Chat) ToDTO() dto.ChatResponse {
 		Name:    c.Name,
 		IsGroup: c.IsGroup,
 		Members: members,
+		Joined:  true,
+	}
+}
+
+type ChatWithMembership struct {
+	ID      uuid.UUID
+	Name    string
+	IsGroup bool
+	Joined  bool
+}
+
+func (c *ChatWithMembership) ToDTO(members []dto.UserResponse) dto.ChatResponse {
+	return dto.ChatResponse{
+		ID:      c.ID,
+		Name:    c.Name,
+		IsGroup: c.IsGroup,
+		Joined:  c.Joined,
+		Members: members,
 	}
 }

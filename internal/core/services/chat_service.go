@@ -4,6 +4,7 @@ import (
 	"errors"
 	"socket/internal/core/domain"
 	"socket/internal/core/ports"
+	"socket/internal/dto"
 	"socket/pkg/apperror"
 
 	"github.com/google/uuid"
@@ -67,4 +68,12 @@ func (c *ChatService) GetChatMembers(chatID uuid.UUID, limit int, page int) ([]d
 
 func (c *ChatService) IsUserInChat(chatID uuid.UUID, username string) (bool, error) {
 	return c.repo.IsUserInChat(chatID, username)
+}
+
+func (c *ChatService) GetGroupChats(username string, limit int, page int) ([]dto.ChatResponse, int, int, error) {
+	if limit <= 0 {
+		chats, err := c.repo.GetAllGroupChats(username)
+		return chats, 1, len(chats), err
+	}
+	return c.repo.GetPaginatedGroupChats(username, limit, page)
 }
