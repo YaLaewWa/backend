@@ -18,8 +18,14 @@ type Message struct {
 
 func (m *Message) ToDTO() dto.MessageResponse {
 	return dto.MessageResponse{
+		Type:     "message",
 		CreateAt: m.CreateAt,
 		Username: m.Username,
 		Content:  m.Content,
 	}
+}
+
+type HubMessage struct {
+	Message Message
+	To      []User
 }

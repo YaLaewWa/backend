@@ -25,7 +25,7 @@ func (m *MessageRepository) Create(msg *domain.Message) error {
 	return nil
 }
 
-func (m *MessageRepository) GetByChatID(chatID uuid.UUID, limit int, page int) ([]domain.Message, int, int, error) {
+func (m *MessageRepository) GetPaginatedByChatID(chatID uuid.UUID, limit int, page int) ([]domain.Message, int, int, error) {
 	var msgs []domain.Message
 	var total, last int
 
@@ -35,4 +35,12 @@ func (m *MessageRepository) GetByChatID(chatID uuid.UUID, limit int, page int) (
 	}
 
 	return msgs, last, total, nil
+}
+
+func (m *MessageRepository) GetAllByChatID(chatID uuid.UUID) ([]domain.Message, error) {
+	var msgs []domain.Message
+	if err := m.db.Where("chat_id = ?", chatID).Order("create_at DESC").Find(&msgs).Error; err != nil {
+		return nil, apperror.InternalServerError(err, "Failed to retrieve messages")
+	}
+	return msgs, nil
 }

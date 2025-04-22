@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"log"
 	"socket/internal/core/domain"
 	"socket/internal/core/ports"
@@ -15,11 +16,12 @@ import (
 
 type MessageSocketHandler struct {
 	hub     *hub.Hub
-	service ports.MessageService
+	message ports.MessageService
+	chat    ports.ChatService
 }
 
-func NewMessageSocketHandler(hub *hub.Hub, service ports.MessageService) ports.MessageSocketHandler {
-	return &MessageSocketHandler{hub: hub, service: service}
+func NewMessageSocketHandler(hub *hub.Hub, message ports.MessageService, chat ports.ChatService) ports.MessageSocketHandler {
+	return &MessageSocketHandler{hub: hub, message: message, chat: chat}
 }
 
 func (h MessageSocketHandler) InitConnection(c *websocket.Conn) {
@@ -57,13 +59,25 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 			break
 		}
 
-		message := new(domain.Message)
-		message.Content = string(msg[:])
-		message.Username = username
-		if err = h.service.Create(message); err != nil {
+		var input dto.MessageRequest
+		err = json.Unmarshal(msg, &input)
+		if err != nil {
+			log.Println("error: ", err)
+			continue
+		}
+
+		savedMsg, err := h.message.Create(username, input.ChatID, input.Content)
+		if err != nil {
+			log.Println("error: ", err)
+			continue
+		}
+
+		members, _, _, err := h.chat.GetChatMembers(input.ChatID, -1, 0)
+		if err != nil {
 			log.Println("error: ", err)
 		} else {
-			h.hub.Broadcast <- msg
+			hubMsg := domain.HubMessage{Message: *savedMsg, To: members}
+			h.hub.Broadcast <- hubMsg
 		}
 	}
 }
@@ -101,7 +115,7 @@ func (h MessageSocketHandler) GetByChatID(c *fiber.Ctx) error {
 
 	userID := c.Locals("userID").(uuid.UUID)
 
-	msgs, totalPages, totalRows, err := h.service.GetByChatID(chatID, limit, page, userID)
+	msgs, totalPages, totalRows, err := h.message.GetByChatID(chatID, limit, page, userID)
 	if err != nil {
 		return err
 	}

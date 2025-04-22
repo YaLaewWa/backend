@@ -18,8 +18,13 @@ func NewMessageService(msgRepo ports.MessageRepository, chatRepo ports.ChatRepos
 	return &MessageService{msgRepo: msgRepo, chatRepo: chatRepo}
 }
 
-func (m *MessageService) Create(msg *domain.Message) error {
-	return m.msgRepo.Create(msg)
+func (m *MessageService) Create(sender string, chatID uuid.UUID, content string) (*domain.Message, error) {
+	msg := &domain.Message{
+		Username: sender,
+		ChatID:   chatID,
+		Content:  content,
+	}
+	return msg, m.msgRepo.Create(msg)
 }
 
 func (m *MessageService) GetByChatID(chatID uuid.UUID, limit int, page int, userID uuid.UUID) ([]domain.Message, int, int, error) {
@@ -38,5 +43,10 @@ func (m *MessageService) GetByChatID(chatID uuid.UUID, limit int, page int, user
 		return nil, 0, 0, apperror.ForbiddenError(errors.New("forbidden"), "You are not a member of this chat")
 	}
 
-	return m.msgRepo.GetByChatID(chatID, limit, page)
+	if limit <= 0 {
+		msgs, err := m.msgRepo.GetAllByChatID(chatID)
+		return msgs, 1, len(msgs), err
+	}
+
+	return m.msgRepo.GetPaginatedByChatID(chatID, limit, page)
 }

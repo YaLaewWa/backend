@@ -10,11 +10,12 @@ import (
 
 type MessageRepository interface {
 	Create(msg *domain.Message) error
-	GetByChatID(chatID uuid.UUID, limit int, page int) ([]domain.Message, int, int, error)
+	GetPaginatedByChatID(chatID uuid.UUID, limit int, page int) ([]domain.Message, int, int, error)
+	GetAllByChatID(chatID uuid.UUID) ([]domain.Message, error)
 }
 
 type MessageService interface {
-	Create(msg *domain.Message) error
+	Create(sender string, chatID uuid.UUID, content string) (*domain.Message, error)
 	GetByChatID(chatID uuid.UUID, limit int, page int, userID uuid.UUID) ([]domain.Message, int, int, error)
 }
 
