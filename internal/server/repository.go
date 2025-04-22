@@ -6,18 +6,21 @@ import (
 )
 
 type Repository struct {
-	userRepository    ports.UserRepository
-	messageRepository ports.MessageRepository
-	chatRepository    ports.ChatRepository
+	userRepository         ports.UserRepository
+	messageRepository      ports.MessageRepository
+	chatRepository         ports.ChatRepository
+	messageQueueRepository ports.MessageQueueRepository
 }
 
 func (s *Server) initRepository() {
 	userRepo := repository.NewUserRepo(s.pgDB)
 	messageRepo := repository.NewMessageRepository(s.pgDB)
 	chatRepo := repository.NewChatRepository(s.pgDB)
+	messageQueueRepository := repository.NewMessageQueueRepository(s.pgDB)
 	s.repository = &Repository{
-		userRepository:    userRepo,
-		messageRepository: messageRepo,
-		chatRepository:    chatRepo,
+		userRepository:         userRepo,
+		messageRepository:      messageRepo,
+		chatRepository:         chatRepo,
+		messageQueueRepository: messageQueueRepository,
 	}
 }
