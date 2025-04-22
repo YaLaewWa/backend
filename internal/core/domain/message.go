@@ -23,3 +23,8 @@ func (m *Message) ToDTO() dto.MessageResponse {
 		Content:  m.Content,
 	}
 }
+
+type HubMessage struct {
+	Message Message
+	To      []User
+}

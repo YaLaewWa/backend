@@ -3,6 +3,7 @@ package hub
 import (
 	"encoding/json"
 	"log"
+	"socket/internal/core/domain"
 )
 
 type RegisterPayload struct {
@@ -14,7 +15,7 @@ type Hub struct {
 	Clients    map[string]chan []byte
 	Register   chan *RegisterPayload
 	Unregister chan string
-	Broadcast  chan []byte
+	Broadcast  chan domain.HubMessage
 }
 
 func NewHub() *Hub {
@@ -22,7 +23,7 @@ func NewHub() *Hub {
 		Clients:    make(map[string]chan []byte),
 		Register:   make(chan *RegisterPayload, 256),
 		Unregister: make(chan string, 256),
-		Broadcast:  make(chan []byte, 256),
+		Broadcast:  make(chan domain.HubMessage, 256),
 	}
 }
 
@@ -37,8 +38,15 @@ func (h *Hub) Run() {
 			delete(h.Clients, username)
 			h.broadcastUser(username)
 		case msg := <-h.Broadcast:
-			for id := range h.Clients {
-				h.Clients[id] <- msg
+			for _, member := range msg.To {
+				if _, ok := h.Clients[member.Username]; ok {
+					data, err := json.Marshal(msg.Message.ToDTO())
+					if err != nil {
+						log.Println("errror: ", err)
+					} else {
+						h.Clients[member.Username] <- data
+					}
+				}
 			}
 		}
 	}

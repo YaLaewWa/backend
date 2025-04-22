@@ -65,8 +65,15 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 		savedMsg, err := h.message.Create(username, input.ChatID, input.Content)
 		if err != nil {
 			log.Println("error: ", err)
+			continue
+		}
+
+		members, _, _, err := h.chat.GetChatMembers(input.ChatID, 10, 10)
+		if err != nil {
+			log.Println("error: ", err)
 		} else {
-			h.hub.Broadcast <- *savedMsg
+			hubMsg := domain.HubMessage{Message: *savedMsg, To: members}
+			h.hub.Broadcast <- hubMsg
 		}
 	}
 }
