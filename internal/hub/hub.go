@@ -59,9 +59,9 @@ func (h *Hub) sendOnlineUsers(username string) {
 		onlineUsers = append(onlineUsers, username)
 	}
 
-	msg := map[string]interface{}{
-		"type":         "online_users",
-		"online_users": onlineUsers,
+	msg := map[string]any{
+		"type":    "online_users",
+		"payload": onlineUsers,
 	}
 
 	data, err := json.Marshal(msg)
@@ -82,9 +82,9 @@ func (h *Hub) broadcastUser(username string) {
 		msgType = "user_logout"
 	}
 
-	msg := map[string]interface{}{
-		"type":     msgType,
-		"username": username,
+	msg := map[string]any{
+		"type":    msgType,
+		"payload": username,
 	}
 
 	data, err := json.Marshal(msg)
