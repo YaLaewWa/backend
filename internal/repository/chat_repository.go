@@ -40,7 +40,7 @@ func (c *ChatRepository) GetPaginatedChatMembers(chatID uuid.UUID, limit int, pa
 	var members []domain.User
 	var total, last int
 
-	if err := c.db.Joins("JOIN chat_members cm ON cm.user_id = users.id").Where("cm.chat_id = ?", chatID).
+	if err := c.db.Joins("JOIN chat_members cm ON cm.user_username = users.username").Where("cm.chat_id = ?", chatID).
 		Scopes(database.Paginate(domain.User{}, &limit, &page, &total, &last)).Find(&members).Error; err != nil {
 		return nil, 0, 0, apperror.InternalServerError(err, "Failed to retrieve chat's members")
 	}
@@ -58,7 +58,7 @@ func (c *ChatRepository) GetAllChatMembers(chatID uuid.UUID) ([]domain.User, err
 
 func (c *ChatRepository) GetAllChatsByUsername(username string) ([]domain.Chat, error) {
 	var chats []domain.Chat
-	if err := c.db.Joins("JOIN chat_members cm ON cm.chat_id = chats.id").Where("cm.username = ?", username).Preload("Members").Find(&chats).Error; err != nil {
+	if err := c.db.Joins("JOIN chat_members cm ON cm.chat_id = chats.id").Where("cm.user_username = ?", username).Preload("Members").Find(&chats).Error; err != nil {
 		return nil, apperror.InternalServerError(err, "Failed to retrieve user's chats")
 	}
 	return chats, nil
@@ -68,7 +68,7 @@ func (c *ChatRepository) GetPaginatedChatsByUsername(username string, limit int,
 	var chats []domain.Chat
 	var total, last int
 
-	if err := c.db.Joins("JOIN chat_members cm ON cm.chat_id = chats.id").Where("cm.username = ?", username).
+	if err := c.db.Joins("JOIN chat_members cm ON cm.chat_id = chats.id").Where("cm.user_username = ?", username).
 		Preload("Members").Scopes(database.Paginate(&domain.Chat{}, &limit, &page, &total, &last)).
 		Find(&chats).Error; err != nil {
 		return nil, 0, 0, apperror.InternalServerError(err, "Failed to retrieve user's chats")
@@ -99,7 +99,7 @@ func (c *ChatRepository) GetByID(chatID uuid.UUID) (*domain.Chat, error) {
 
 func (c *ChatRepository) IsUserInChat(chatID uuid.UUID, username string) (bool, error) {
 	var count int64
-	err := c.db.Table("chat_members").Where("chat_id = ? AND username = ?", chatID, username).Count(&count).Error
+	err := c.db.Table("chat_members").Where("chat_id = ? AND user_username = ?", chatID, username).Count(&count).Error
 	if err != nil {
 		return false, apperror.InternalServerError(err, "Failed to verify membership")
 	}
