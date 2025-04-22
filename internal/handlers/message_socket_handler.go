@@ -91,7 +91,11 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 				h.hub.ClientMutex.Lock()
 				for _, member := range hubMsg.To {
 					if _, ok := h.hub.Clients[member.Username]; !ok {
-						h.queue.ReceiveMessage(member.Username, payload.ChatID)
+						err = h.queue.ReceiveMessage(member.Username, payload.ChatID)
+						if err != nil {
+							log.Println(err)
+							continue
+						}
 					}
 				}
 				h.hub.ClientMutex.Unlock()
@@ -101,10 +105,18 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 			}
 		} else if input.Type == "read_chat" {
 			payload := input.Payload
-			h.queue.ReadMessage(c.Locals("username").(string), payload.ChatID)
+			err = h.queue.ReadMessage(c.Locals("username").(string), payload.ChatID)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
 		} else if input.Type == "ignore" {
 			payload := input.Payload
-			h.queue.ReadMessage(c.Locals("username").(string), payload.ChatID)
+			err = h.queue.ReadMessage(c.Locals("username").(string), payload.ChatID)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
 		}
 	}
 }
