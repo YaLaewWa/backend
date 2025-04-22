@@ -88,6 +88,13 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 				log.Println("error: ", err)
 			} else {
 				hubMsg := domain.HubMessage{Type: "message", Payload: *savedMsg, To: members}
+				h.hub.ClientMutex.Lock()
+				for _, member := range hubMsg.To {
+					if _, ok := h.hub.Clients[member.Username]; !ok {
+						h.queue.ReceiveMessage(member.Username, payload.ChatID)
+					}
+				}
+				h.hub.ClientMutex.Unlock()
 				h.hub.BrodcastMutex.Lock()
 				h.hub.Broadcast <- hubMsg
 				h.hub.BrodcastMutex.Unlock()
