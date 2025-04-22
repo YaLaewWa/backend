@@ -5,6 +5,7 @@ import (
 	"log"
 	"socket/internal/core/domain"
 	"socket/internal/dto"
+	"sync"
 
 	"github.com/google/uuid"
 )
@@ -19,6 +20,7 @@ type Hub struct {
 	Register   chan *RegisterPayload
 	Unregister chan string
 	Broadcast  chan domain.HubMessage
+	Mutex      *sync.Mutex
 }
 
 func NewHub() *Hub {

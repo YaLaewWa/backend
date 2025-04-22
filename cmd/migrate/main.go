@@ -20,6 +20,7 @@ func main() {
 		&domain.User{},
 		&domain.Message{},
 		&domain.Chat{},
+		&domain.MessageQueue{},
 	)
 	if err != nil {
 		log.Fatalf("Migration failed: %v", err)

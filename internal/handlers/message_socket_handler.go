@@ -87,7 +87,9 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 				log.Println("error: ", err)
 			} else {
 				hubMsg := domain.HubMessage{Type: "message", Payload: *savedMsg, To: members}
+				h.hub.Mutex.Lock()
 				h.hub.Broadcast <- hubMsg
+				h.hub.Mutex.Unlock()
 			}
 		}
 	}

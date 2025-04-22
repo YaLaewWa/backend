@@ -15,12 +15,13 @@ import (
 )
 
 type ChatHandler struct {
-	service ports.ChatService
-	hub     *hub.Hub
+	service      ports.ChatService
+	queueService ports.MessageQueueService
+	hub          *hub.Hub
 }
 
-func NewChatHandler(service ports.ChatService, hub *hub.Hub) ports.ChatHandler {
-	return &ChatHandler{service: service, hub: hub}
+func NewChatHandler(service ports.ChatService, queueService ports.MessageQueueService, hub *hub.Hub) ports.ChatHandler {
+	return &ChatHandler{service: service, queueService: queueService, hub: hub}
 }
 
 func (h *ChatHandler) JoinChat(c *fiber.Ctx) error {
@@ -40,6 +41,10 @@ func (h *ChatHandler) JoinChat(c *fiber.Ctx) error {
 	payload["chatID"] = chat.ID
 	payload["joiner"] = username
 	h.hub.Broadcast <- domain.HubMessage{Type: "new_user_group", Payload: payload}
+	err = h.queueService.Create(username, chatID)
+	if err != nil {
+		return err
+	}
 
 	return c.Status(fiber.StatusOK).JSON(dto.Success(chat.ToDTO()))
 }
@@ -93,7 +98,19 @@ func (h *ChatHandler) createChat(c *fiber.Ctx, isGroup bool) (*domain.Chat, erro
 		}
 	}
 
-	return h.service.CreateChat(req.Name, req.Usernames, isGroup)
+	chat, err := h.service.CreateChat(req.Name, req.Usernames, isGroup)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, name := range req.Usernames {
+		err = h.queueService.Create(name, chat.ID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return chat, nil
 }
 
 func (h *ChatHandler) GetChats(c *fiber.Ctx) error {

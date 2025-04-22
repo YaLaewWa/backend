@@ -13,6 +13,7 @@ func (s *Server) initRoutes() {
 	s.initAuth()
 	s.initSwagger()
 	s.initChat()
+	s.initQueue()
 }
 
 func (s *Server) initSocket() {
@@ -41,4 +42,9 @@ func (s *Server) initChat() {
 	chatRoutes.Post("/direct", s.handler.chatHandler.CreateDirectChat)
 	chatRoutes.Post("/group", s.handler.chatHandler.CreateGroupChat)
 	chatRoutes.Post("/:id/join", s.handler.chatHandler.JoinChat)
+}
+
+func (s *Server) initQueue() {
+	queueRoutes := s.app.Group("/sidebar", s.middleware.Auth)
+	queueRoutes.Get("", s.handler.messageQueueHandler.Get)
 }
