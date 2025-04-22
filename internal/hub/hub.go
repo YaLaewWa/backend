@@ -16,11 +16,11 @@ type RegisterPayload struct {
 }
 
 type Hub struct {
-	Clients    map[string]chan []byte
-	Register   chan *RegisterPayload
-	Unregister chan string
-	Broadcast  chan domain.HubMessage
-	Mutex      *sync.Mutex
+	Clients       map[string]chan []byte
+	Register      chan *RegisterPayload
+	Unregister    chan string
+	Broadcast     chan domain.HubMessage
+	BrodcastMutex *sync.Mutex
 }
 
 func NewHub() *Hub {
