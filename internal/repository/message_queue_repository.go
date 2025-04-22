@@ -26,7 +26,7 @@ func (c *MessageQueueRepository) Create(queue *domain.MessageQueue) error {
 
 func (c *MessageQueueRepository) GetAll(username string) ([]domain.MessageQueue, error) {
 	var queue []domain.MessageQueue
-	if err := c.db.Model(queue).Where("username = ?", username).Error; err != nil {
+	if err := c.db.Model(queue).Preload("Chat").Preload("Chat.Members").Where("username = ?", username).Error; err != nil {
 		return nil, err
 	}
 	return queue, nil

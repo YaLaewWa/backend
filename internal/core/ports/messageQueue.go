@@ -3,6 +3,7 @@ package ports
 import (
 	"socket/internal/core/domain"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
 
@@ -18,4 +19,8 @@ type MessageQueueService interface {
 	Get(username string) ([]domain.MessageQueue, error)
 	ReceiveMessage(username string, chatID uuid.UUID) error
 	ReadMessage(username string, chatID uuid.UUID) error
+}
+
+type MessageQueueHandler interface {
+	Get(c *fiber.Ctx) error
 }
