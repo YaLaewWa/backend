@@ -87,14 +87,14 @@ func (c *ChatService) GetGroupChats(username string, limit int, page int) ([]dto
 	return c.repo.GetPaginatedGroupChats(username, limit, page)
 }
 
-func (c *ChatService) HavePrivateChat(user1, user2 string) (bool, error) {
+func (c *ChatService) HavePrivateChat(user1, user2 string) (bool, uuid.UUID, error) {
 	chat1, err := c.repo.GetAllChatsByUsername(user1)
 	if err != nil {
-		return false, err
+		return false, uuid.Nil, err
 	}
 	chat2, err := c.repo.GetAllChatsByUsername(user2)
 	if err != nil {
-		return false, err
+		return false, uuid.Nil, err
 	}
 	privateChatsUser2 := make(map[uuid.UUID]bool)
 	for _, item := range chat2 {
@@ -105,9 +105,9 @@ func (c *ChatService) HavePrivateChat(user1, user2 string) (bool, error) {
 	for _, item := range chat1 {
 		if !item.IsGroup {
 			if privateChatsUser2[item.ID] {
-				return true, nil
+				return true, item.ID, nil
 			}
 		}
 	}
-	return false, nil
+	return false, uuid.Nil, nil
 }
