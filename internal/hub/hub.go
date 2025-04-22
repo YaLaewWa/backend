@@ -38,13 +38,30 @@ func (h *Hub) Run() {
 			delete(h.Clients, username)
 			h.broadcastUser(username)
 		case msg := <-h.Broadcast:
-			for _, member := range msg.To {
-				if _, ok := h.Clients[member.Username]; ok {
-					data, err := json.Marshal(msg.Message.ToDTO())
+			if msg.Type == "message" {
+				for _, member := range msg.To {
+					if _, ok := h.Clients[member.Username]; ok {
+						message := msg.Payload.(domain.Message)
+						data, err := json.Marshal(message.ToDTO())
+						if err != nil {
+							log.Println("error: ", err)
+						} else {
+							h.Clients[member.Username] <- data
+						}
+					}
+				}
+			} else if msg.Type == "new_group" {
+				creater := msg.To[0]
+				log.Println("1")
+				for username := range h.Clients {
+					log.Println("2")
+					group := msg.Payload.(*domain.Chat)
+					log.Println("3")
+					data, err := json.Marshal(group.ToSocketDTO(username == creater.Username))
 					if err != nil {
-						log.Println("errror: ", err)
+						log.Println("error:", err)
 					} else {
-						h.Clients[member.Username] <- data
+						h.Clients[username] <- data
 					}
 				}
 			}
