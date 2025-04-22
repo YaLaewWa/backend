@@ -29,6 +29,7 @@ type ChatService interface {
 	AddUserToChat(chatID uuid.UUID, username string) (*domain.Chat, error)
 	IsUserInChat(chatID uuid.UUID, username string) (bool, error)
 	GetGroupChats(username string, limit int, page int) ([]dto.ChatResponse, int, int, error)
+	HavePrivateChat(user1, user2 string) (bool, error)
 }
 
 type ChatHandler interface {
@@ -38,4 +39,5 @@ type ChatHandler interface {
 	GetChats(c *fiber.Ctx) error
 	JoinChat(c *fiber.Ctx) error
 	GetGroupChats(c *fiber.Ctx) error
+	HavePrivateChat(c *fiber.Ctx) error
 }

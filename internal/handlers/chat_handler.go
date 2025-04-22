@@ -186,3 +186,14 @@ func (h *ChatHandler) GetGroupChats(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(dto.SuccessPagination(groups, page, totalPages, limit, totalRows))
 }
+
+func (h *ChatHandler) HavePrivateChat(c *fiber.Ctx) error {
+	username1 := c.Params("username1")
+	username2 := c.Params("username2")
+	status, err := h.service.HavePrivateChat(username1, username2)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.Success(map[string]any{"status": status}))
+}
