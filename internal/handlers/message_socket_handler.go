@@ -24,6 +24,21 @@ func NewMessageSocketHandler(hub *hub.Hub, message ports.MessageService, chat po
 	return &MessageSocketHandler{hub: hub, message: message, chat: chat, queue: queue}
 }
 
+func (h *MessageSocketHandler) broadcastSideBar(username string) error {
+	payload := make(map[string]any)
+	queues, err := h.queue.Get(username)
+	if err != nil {
+		return err
+	}
+	var queueDTO []dto.QueueResponse
+	for _, o := range queues {
+		queueDTO = append(queueDTO, o.ToDTO())
+	}
+	payload["queue"] = queueDTO
+	h.hub.Broadcast <- domain.HubMessage{Type: "sidebar_update", Payload: payload, To: []domain.User{{Username: username}}}
+	return nil
+}
+
 func (h MessageSocketHandler) InitConnection(c *websocket.Conn) {
 	user := c.Locals("user").(*domain.User)
 	username := user.Username
@@ -108,9 +123,19 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 				log.Println(err)
 				continue
 			}
+			err = h.broadcastSideBar(username)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
 		} else if input.Type == "ignore" {
 			payload := input.Payload
 			err = h.queue.ReceiveMessage(c.Locals("username").(string), payload.ChatID)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+			err = h.broadcastSideBar(username)
 			if err != nil {
 				log.Println(err)
 				continue
