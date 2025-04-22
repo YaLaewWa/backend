@@ -13,11 +13,12 @@ import (
 )
 
 type ChatHandler struct {
-	service ports.ChatService
+	service      ports.ChatService
+	queueService ports.MessageQueueService
 }
 
-func NewChatHandler(service ports.ChatService) ports.ChatHandler {
-	return &ChatHandler{service: service}
+func NewChatHandler(service ports.ChatService, queueService ports.MessageQueueService) ports.ChatHandler {
+	return &ChatHandler{service: service, queueService: queueService}
 }
 
 func (h *ChatHandler) JoinChat(c *fiber.Ctx) error {
@@ -29,6 +30,11 @@ func (h *ChatHandler) JoinChat(c *fiber.Ctx) error {
 	}
 
 	chat, err := h.service.AddUserToChat(chatID, username)
+	if err != nil {
+		return err
+	}
+
+	err = h.queueService.Create(username, chatID)
 	if err != nil {
 		return err
 	}
@@ -67,6 +73,10 @@ func (h *ChatHandler) createChat(c *fiber.Ctx, isGroup bool) error {
 	}
 
 	chat, err := h.service.CreateChat(req.Name, req.Usernames, isGroup)
+	if err != nil {
+		return err
+	}
+	err = h.queueService.Create(username, chat.ID)
 	if err != nil {
 		return err
 	}
