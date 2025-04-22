@@ -112,7 +112,7 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 			}
 		} else if input.Type == "ignore" {
 			payload := input.Payload
-			err = h.queue.ReadMessage(c.Locals("username").(string), payload.ChatID)
+			err = h.queue.ReceiveMessage(c.Locals("username").(string), payload.ChatID)
 			if err != nil {
 				log.Println(err)
 				continue
