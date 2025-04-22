@@ -10,3 +10,8 @@ type QueueResponse struct {
 	Count     int          `json:"count"`
 	UpdatedAt time.Time    `json:"timestamp"`
 }
+
+type QueueSocket struct {
+	Type    string `json:"type"`
+	Payload any    `json:"payload"`
+}

@@ -92,7 +92,7 @@ func (h *Hub) Run() {
 				h.ClientMutex.Unlock()
 			} else if msg.Type == "sidebar_update" {
 				h.ClientMutex.Lock()
-				data, err := json.Marshal(msg.Payload)
+				data, err := json.Marshal(dto.QueueSocket{Type: msg.Type, Payload: msg.Payload})
 				if err != nil {
 					log.Println("error:", err)
 				} else {
