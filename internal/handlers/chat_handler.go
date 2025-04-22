@@ -76,9 +76,11 @@ func (h *ChatHandler) createChat(c *fiber.Ctx, isGroup bool) error {
 	if err != nil {
 		return err
 	}
-	err = h.queueService.Create(username, chat.ID)
-	if err != nil {
-		return err
+	for _, name := range req.Usernames {
+		err = h.queueService.Create(name, chat.ID)
+		if err != nil {
+			return err
+		}
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(dto.Success(chat.ToDTO()))
