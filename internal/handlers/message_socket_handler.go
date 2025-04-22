@@ -65,6 +65,15 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 			continue
 		}
 
+		isMember, err := h.chat.IsUserInChat(input.ChatID, username)
+		if err != nil {
+			log.Println("error: ", err)
+			continue
+		} else if !isMember {
+			log.Println(username, "tried to send message to chat they aren't in.")
+			continue
+		}
+
 		savedMsg, err := h.message.Create(username, input.ChatID, input.Content)
 		if err != nil {
 			log.Println("error: ", err)
