@@ -17,10 +17,11 @@ type MessageSocketHandler struct {
 	hub     *hub.Hub
 	message ports.MessageService
 	chat    ports.ChatService
+	queue   ports.MessageQueueService
 }
 
-func NewMessageSocketHandler(hub *hub.Hub, message ports.MessageService, chat ports.ChatService) ports.MessageSocketHandler {
-	return &MessageSocketHandler{hub: hub, message: message, chat: chat}
+func NewMessageSocketHandler(hub *hub.Hub, message ports.MessageService, chat ports.ChatService, queue ports.MessageQueueService) ports.MessageSocketHandler {
+	return &MessageSocketHandler{hub: hub, message: message, chat: chat, queue: queue}
 }
 
 func (h MessageSocketHandler) InitConnection(c *websocket.Conn) {
