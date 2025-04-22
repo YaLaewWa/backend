@@ -15,6 +15,7 @@ type MessageResponsePayload struct {
 	CreateAt time.Time `json:"create_at"`
 	Username string    `json:"username"`
 	Content  string    `json:"message"`
+	ChatID   uuid.UUID `json:"chat_id"`
 }
 
 type MessageRequest struct {
