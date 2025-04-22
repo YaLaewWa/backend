@@ -51,13 +51,11 @@ func (h *Hub) Run() {
 					}
 				}
 			} else if msg.Type == "new_group" {
-				creater := msg.To[0]
-				log.Println("1")
 				for username := range h.Clients {
-					log.Println("2")
-					group := msg.Payload.(*domain.Chat)
-					log.Println("3")
-					data, err := json.Marshal(group.ToSocketDTO(username == creater.Username))
+					payload := msg.Payload.(map[string]any)
+					group := payload["chat"].(*domain.Chat)
+					creator := payload["creator"].(string)
+					data, err := json.Marshal(group.ToSocketDTO(username == creator))
 					if err != nil {
 						log.Println("error:", err)
 					} else {

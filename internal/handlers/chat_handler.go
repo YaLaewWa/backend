@@ -54,7 +54,10 @@ func (h *ChatHandler) CreateGroupChat(c *fiber.Ctx) error {
 	}
 
 	user := c.Locals("user").(*domain.User)
-	h.hub.Broadcast <- domain.HubMessage{Type: "new_group", Payload: chat, To: []domain.User{*user}}
+	payload := make(map[string]any)
+	payload["chat"] = chat
+	payload["creator"] = user.Username
+	h.hub.Broadcast <- domain.HubMessage{Type: "new_group", Payload: payload}
 
 	return c.Status(fiber.StatusCreated).JSON(dto.Success(chat.ToDTO()))
 }
