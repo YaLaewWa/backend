@@ -90,6 +90,15 @@ func (h *Hub) Run() {
 					}
 				}
 				h.ClientMutex.Unlock()
+			} else if msg.Type == "sidebar_update" {
+				h.ClientMutex.Lock()
+				data, err := json.Marshal(msg.Payload)
+				if err != nil {
+					log.Println("error:", err)
+				} else {
+					h.Clients[msg.To[0].Username] <- data
+				}
+				h.ClientMutex.Unlock()
 			}
 		}
 	}
