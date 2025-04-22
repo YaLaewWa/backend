@@ -5,6 +5,7 @@ import (
 	"slices"
 	"socket/internal/core/ports"
 	"socket/internal/dto"
+	"socket/internal/hub"
 	"socket/pkg/apperror"
 	"socket/pkg/util"
 
@@ -14,10 +15,11 @@ import (
 
 type ChatHandler struct {
 	service ports.ChatService
+	hub     *hub.Hub
 }
 
-func NewChatHandler(service ports.ChatService) ports.ChatHandler {
-	return &ChatHandler{service: service}
+func NewChatHandler(service ports.ChatService, hub *hub.Hub) ports.ChatHandler {
+	return &ChatHandler{service: service, hub: hub}
 }
 
 func (h *ChatHandler) JoinChat(c *fiber.Ctx) error {
