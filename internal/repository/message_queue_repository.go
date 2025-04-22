@@ -5,6 +5,7 @@ import (
 	"socket/internal/core/ports"
 	"socket/pkg/apperror"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -23,9 +24,18 @@ func (c *MessageQueueRepository) Create(queue *domain.MessageQueue) error {
 	return nil
 }
 
-func (c *MessageQueueRepository) Get(username string) ([]domain.MessageQueue, error) {
+func (c *MessageQueueRepository) GetAll(username string) ([]domain.MessageQueue, error) {
 	var queue []domain.MessageQueue
 	if err := c.db.Model(queue).Where("username = ?", username).Error; err != nil {
+		return nil, err
+	}
+	return queue, nil
+}
+
+func (c *MessageQueueRepository) GetQueue(username string, chatID uuid.UUID) (*domain.MessageQueue, error) {
+	var queue *domain.MessageQueue
+
+	if err := c.db.Where(&domain.MessageQueue{Username: username, ChatID: chatID}).First(&queue).Error; err != nil {
 		return nil, err
 	}
 	return queue, nil
