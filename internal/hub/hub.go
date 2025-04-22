@@ -16,11 +16,12 @@ type RegisterPayload struct {
 }
 
 type Hub struct {
-	Clients    map[string]chan []byte
-	Register   chan *RegisterPayload
-	Unregister chan string
-	Broadcast  chan domain.HubMessage
-	Mutex      *sync.Mutex
+	Clients       map[string]chan []byte
+	Register      chan *RegisterPayload
+	Unregister    chan string
+	Broadcast     chan domain.HubMessage
+	BrodcastMutex sync.Mutex
+	ClientMutex   sync.Mutex
 }
 
 func NewHub() *Hub {
@@ -36,14 +37,19 @@ func (h *Hub) Run() {
 	for {
 		select {
 		case User := <-h.Register:
+			h.ClientMutex.Lock()
 			h.Clients[User.Username] = User.Channel
+			h.ClientMutex.Unlock()
 			h.sendOnlineUsers(User.Username)
 			h.broadcastUser(User.Username)
 		case username := <-h.Unregister:
+			h.ClientMutex.Lock()
 			delete(h.Clients, username)
+			h.ClientMutex.Unlock()
 			h.broadcastUser(username)
 		case msg := <-h.Broadcast:
 			if msg.Type == "message" {
+				h.ClientMutex.Lock()
 				for _, member := range msg.To {
 					if _, ok := h.Clients[member.Username]; ok {
 						message := msg.Payload.(domain.Message)
@@ -55,7 +61,9 @@ func (h *Hub) Run() {
 						}
 					}
 				}
+				h.ClientMutex.Unlock()
 			} else if msg.Type == "new_group" {
+				h.ClientMutex.Lock()
 				for username := range h.Clients {
 					payload := msg.Payload.(map[string]any)
 					group := payload["chat"].(*domain.Chat)
@@ -67,7 +75,9 @@ func (h *Hub) Run() {
 						h.Clients[username] <- data
 					}
 				}
+				h.ClientMutex.Unlock()
 			} else if msg.Type == "new_user_group" {
+				h.ClientMutex.Lock()
 				for username := range h.Clients {
 					payload := msg.Payload.(map[string]any)
 					chatID := payload["chatID"].(uuid.UUID)
@@ -79,6 +89,7 @@ func (h *Hub) Run() {
 						h.Clients[username] <- data
 					}
 				}
+				h.ClientMutex.Unlock()
 			}
 		}
 	}

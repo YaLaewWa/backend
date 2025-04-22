@@ -17,10 +17,11 @@ type MessageSocketHandler struct {
 	hub     *hub.Hub
 	message ports.MessageService
 	chat    ports.ChatService
+	queue   ports.MessageQueueService
 }
 
-func NewMessageSocketHandler(hub *hub.Hub, message ports.MessageService, chat ports.ChatService) ports.MessageSocketHandler {
-	return &MessageSocketHandler{hub: hub, message: message, chat: chat}
+func NewMessageSocketHandler(hub *hub.Hub, message ports.MessageService, chat ports.ChatService, queue ports.MessageQueueService) ports.MessageSocketHandler {
+	return &MessageSocketHandler{hub: hub, message: message, chat: chat, queue: queue}
 }
 
 func (h MessageSocketHandler) InitConnection(c *websocket.Conn) {
@@ -87,9 +88,34 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 				log.Println("error: ", err)
 			} else {
 				hubMsg := domain.HubMessage{Type: "message", Payload: *savedMsg, To: members}
-				h.hub.Mutex.Lock()
+				h.hub.ClientMutex.Lock()
+				for _, member := range hubMsg.To {
+					if _, ok := h.hub.Clients[member.Username]; !ok {
+						err = h.queue.ReceiveMessage(member.Username, payload.ChatID)
+						if err != nil {
+							log.Println(err)
+							continue
+						}
+					}
+				}
+				h.hub.ClientMutex.Unlock()
+				h.hub.BrodcastMutex.Lock()
 				h.hub.Broadcast <- hubMsg
-				h.hub.Mutex.Unlock()
+				h.hub.BrodcastMutex.Unlock()
+			}
+		} else if input.Type == "read_chat" {
+			payload := input.Payload
+			err = h.queue.ReadMessage(c.Locals("username").(string), payload.ChatID)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+		} else if input.Type == "ignore" {
+			payload := input.Payload
+			err = h.queue.ReadMessage(c.Locals("username").(string), payload.ChatID)
+			if err != nil {
+				log.Println(err)
+				continue
 			}
 		}
 	}

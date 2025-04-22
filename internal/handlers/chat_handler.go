@@ -40,7 +40,9 @@ func (h *ChatHandler) JoinChat(c *fiber.Ctx) error {
 	payload := make(map[string]any)
 	payload["chatID"] = chat.ID
 	payload["joiner"] = username
+	h.hub.BrodcastMutex.Lock()
 	h.hub.Broadcast <- domain.HubMessage{Type: "new_user_group", Payload: payload}
+	h.hub.BrodcastMutex.Unlock()
 	err = h.queueService.Create(username, chatID)
 	if err != nil {
 		return err
@@ -67,7 +69,9 @@ func (h *ChatHandler) CreateGroupChat(c *fiber.Ctx) error {
 	payload := make(map[string]any)
 	payload["chat"] = chat
 	payload["creator"] = username
+	h.hub.BrodcastMutex.Lock()
 	h.hub.Broadcast <- domain.HubMessage{Type: "new_group", Payload: payload}
+	h.hub.BrodcastMutex.Unlock()
 
 	return c.Status(fiber.StatusCreated).JSON(dto.Success(chat.ToDTO()))
 }
