@@ -68,7 +68,7 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 			continue
 		}
 
-		members, _, _, err := h.chat.GetChatMembers(input.ChatID, 10, 10)
+		members, _, _, err := h.chat.GetChatMembers(input.ChatID, -1, 0)
 		if err != nil {
 			log.Println("error: ", err)
 		} else {
