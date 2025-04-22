@@ -99,6 +99,12 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 				h.hub.Broadcast <- hubMsg
 				h.hub.BrodcastMutex.Unlock()
 			}
+		} else if input.Type == "read_chat" {
+			payload := input.Payload
+			h.queue.ReadMessage(c.Locals("username").(string), payload.ChatID)
+		} else if input.Type == "ignore" {
+			payload := input.Payload
+			h.queue.ReadMessage(c.Locals("username").(string), payload.ChatID)
 		}
 	}
 }
