@@ -6,8 +6,8 @@ type ChatResponse struct {
 	ID      uuid.UUID      `json:"id"`
 	Name    string         `json:"name,omitempty"`
 	IsGroup bool           `json:"is_group"`
-	Members []UserResponse `json:"members"`
 	Joined  bool           `json:"joined"`
+	Members []UserResponse `json:"members"`
 }
 
 type CreateChatRequest struct {

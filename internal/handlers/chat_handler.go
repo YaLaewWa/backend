@@ -111,3 +111,15 @@ func (h *ChatHandler) GetChatMembers(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(dto.SuccessPagination(res, page, totalPages, limit, totalRows))
 }
+
+func (h *ChatHandler) GetGroupChats(c *fiber.Ctx) error {
+	username := c.Locals("username").(string)
+	page, limit := util.PaginationQuery(c)
+
+	groups, totalPages, totalRows, err := h.service.GetGroupChats(username, limit, page)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.SuccessPagination(groups, page, totalPages, limit, totalRows))
+}
