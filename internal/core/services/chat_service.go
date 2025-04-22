@@ -50,9 +50,17 @@ func (c *ChatService) CreateChat(name string, userIDs []uuid.UUID, isGroup bool)
 }
 
 func (c *ChatService) GetChatsByUserID(userID uuid.UUID, limit int, page int) ([]domain.Chat, int, int, error) {
-	return c.repo.GetChatsByUserID(userID, limit, page)
+	if limit <= 0 {
+		chats, err := c.repo.GetAllChatsByUserID(userID)
+		return chats, 1, len(chats), err
+	}
+	return c.repo.GetPaginatedChatsByUserID(userID, limit, page)
 }
 
 func (c *ChatService) GetChatMembers(chatID uuid.UUID, limit int, page int) ([]domain.User, int, int, error) {
-	return c.repo.GetChatMembers(chatID, limit, page)
+	if limit <= 0 {
+		members, err := c.repo.GetAllChatMembers(chatID)
+		return members, 1, len(members), err
+	}
+	return c.repo.GetPaginatedChatMembers(chatID, limit, page)
 }
