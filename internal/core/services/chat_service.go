@@ -47,6 +47,15 @@ func (c *ChatService) AddUserToChat(chatID uuid.UUID, username string) (*domain.
 }
 
 func (c *ChatService) CreateChat(name string, usernames []string, isGroup bool) (*domain.Chat, error) {
+	if !isGroup {
+		dm, err := c.repo.GetDMChat(usernames)
+		if err != nil {
+			return nil, err
+		}
+		if dm != nil {
+			return nil, apperror.ConflictError(errors.New("conflict"), "You already have a direct message chat with this user")
+		}
+	}
 	return c.repo.Create(name, usernames, isGroup)
 }
 
