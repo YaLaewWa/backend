@@ -99,9 +99,7 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 					}
 				}
 				h.hub.ClientMutex.Unlock()
-				h.hub.BrodcastMutex.Lock()
 				h.hub.Broadcast <- hubMsg
-				h.hub.BrodcastMutex.Unlock()
 			}
 		} else if input.Type == "read_chat" {
 			payload := input.Payload
