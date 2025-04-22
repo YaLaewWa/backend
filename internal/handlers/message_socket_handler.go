@@ -86,11 +86,10 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 			if err != nil {
 				log.Println("error: ", err)
 			} else {
-				hubMsg := domain.HubMessage{Message: *savedMsg, To: members}
+				hubMsg := domain.HubMessage{Type: "message", Payload: *savedMsg, To: members}
 				h.hub.Broadcast <- hubMsg
 			}
 		}
-
 	}
 }
 
