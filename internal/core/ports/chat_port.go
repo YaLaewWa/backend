@@ -2,6 +2,7 @@ package ports
 
 import (
 	"socket/internal/core/domain"
+	"socket/internal/dto"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -16,6 +17,8 @@ type ChatRepository interface {
 	AddUserToChat(chatID uuid.UUID, username string) error
 	GetByID(chatID uuid.UUID) (*domain.Chat, error)
 	IsUserInChat(chatID uuid.UUID, username string) (bool, error)
+	GetPaginatedGroupChats(username string, limit int, page int) ([]dto.ChatResponse, int, int, error)
+	GetAllGroupChats(username string) ([]dto.ChatResponse, error)
 }
 
 type ChatService interface {
@@ -24,6 +27,7 @@ type ChatService interface {
 	GetChatsByUsername(username string, limit int, page int) ([]domain.Chat, int, int, error)
 	AddUserToChat(chatID uuid.UUID, username string) (*domain.Chat, error)
 	IsUserInChat(chatID uuid.UUID, username string) (bool, error)
+	GetGroupChats(username string, limit int, page int) ([]dto.ChatResponse, int, int, error)
 }
 
 type ChatHandler interface {
@@ -32,4 +36,5 @@ type ChatHandler interface {
 	GetChatMembers(c *fiber.Ctx) error
 	GetChats(c *fiber.Ctx) error
 	JoinChat(c *fiber.Ctx) error
+	GetGroupChats(c *fiber.Ctx) error
 }

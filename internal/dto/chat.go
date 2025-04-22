@@ -6,6 +6,7 @@ type ChatResponse struct {
 	ID      uuid.UUID      `json:"id"`
 	Name    string         `json:"name,omitempty"`
 	IsGroup bool           `json:"is_group"`
+	Joined  bool           `json:"joined"`
 	Members []UserResponse `json:"members"`
 }
 

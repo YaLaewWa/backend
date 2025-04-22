@@ -35,6 +35,7 @@ func (s *Server) initSwagger() {
 func (s *Server) initChat() {
 	chatRoutes := s.app.Group("/chats", s.middleware.Auth)
 	chatRoutes.Get("/", s.handler.chatHandler.GetChats)
+	chatRoutes.Get("/group", s.handler.chatHandler.GetGroupChats)
 	chatRoutes.Get("/:id/messages", s.handler.socketMessageHandler.GetByChatID)
 	chatRoutes.Get("/:id/members", s.handler.chatHandler.GetChatMembers)
 	chatRoutes.Post("/direct", s.handler.chatHandler.CreateDirectChat)

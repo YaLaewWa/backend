@@ -3,6 +3,8 @@ package domain
 import (
 	"socket/internal/dto"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type User struct {
@@ -16,4 +18,15 @@ func (u *User) ToDTO() *dto.UserResponse {
 		Username: u.Username,
 	}
 	return dto
+}
+
+type Member struct {
+	ChatID   uuid.UUID
+	Username string
+}
+
+func (m *Member) ToDTO() dto.UserResponse {
+	return dto.UserResponse{
+		Username: m.Username,
+	}
 }

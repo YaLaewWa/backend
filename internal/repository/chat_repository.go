@@ -4,6 +4,7 @@ import (
 	"socket/internal/core/domain"
 	"socket/internal/core/ports"
 	"socket/internal/database"
+	"socket/internal/dto"
 	"socket/pkg/apperror"
 
 	"github.com/google/uuid"
@@ -104,4 +105,60 @@ func (c *ChatRepository) IsUserInChat(chatID uuid.UUID, username string) (bool, 
 		return false, apperror.InternalServerError(err, "Failed to verify membership")
 	}
 	return count > 0, nil
+}
+
+func (c *ChatRepository) GetPaginatedGroupChats(username string, limit int, page int) ([]dto.ChatResponse, int, int, error) {
+	var res []domain.ChatWithMembership
+	var total, last int
+
+	err := c.db.Table("chats c").Select("c.id, c.name, c.is_group, CASE WHEN cm.user_username IS NULL THEN false ELSE true END as joined").
+		Joins("LEFT JOIN chat_members cm ON cm.chat_id = c.id AND cm.user_username = ?", username).
+		Where("c.is_group = ?", true).
+		Scopes(database.Paginate(&domain.ChatWithMembership{}, &limit, &page, &total, &last)).Scan(&res).Error
+	if err != nil {
+		return nil, 0, 0, apperror.InternalServerError(err, "Failed to retrieve group chats")
+	}
+
+	groups, err := c.preloadMembers(res)
+	return groups, last, total, err
+}
+
+func (c *ChatRepository) GetAllGroupChats(username string) ([]dto.ChatResponse, error) {
+	var res []domain.ChatWithMembership
+
+	err := c.db.Table("chats c").Select("c.id, c.name, c.is_group, CASE WHEN cm.user_username IS NULL THEN false ELSE true END as joined").
+		Joins("LEFT JOIN chat_members cm ON cm.chat_id = c.id AND cm.user_username = ?", username).
+		Where("c.is_group = ?", true).Scan(&res).Error
+	if err != nil {
+		return nil, apperror.InternalServerError(err, "Failed to retrieve group chats")
+	}
+
+	return c.preloadMembers(res)
+}
+
+func (c *ChatRepository) preloadMembers(res []domain.ChatWithMembership) ([]dto.ChatResponse, error) {
+	chatIDs := make([]uuid.UUID, len(res))
+	for i, g := range res {
+		chatIDs[i] = g.ID
+	}
+
+	var members []domain.Member
+	err := c.db.Table("chat_members").Select("chat_id, users.username").
+		Joins("JOIN users ON users.username = chat_members.user_username").
+		Where("chat_id IN ?", chatIDs).Scan(&members).Error
+	if err != nil {
+		return nil, apperror.InternalServerError(err, "Failed to retrieve group chats' members")
+	}
+
+	groupMap := make(map[uuid.UUID][]dto.UserResponse)
+	for _, m := range members {
+		groupMap[m.ChatID] = append(groupMap[m.ChatID], m.ToDTO())
+	}
+
+	groups := make([]dto.ChatResponse, len(res))
+	for i, group := range res {
+		groups[i] = group.ToDTO(groupMap[group.ID])
+	}
+
+	return groups, nil
 }

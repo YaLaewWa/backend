@@ -65,30 +65,34 @@ func (h MessageSocketHandler) readPump(c *websocket.Conn, username string, close
 			continue
 		}
 
-		isMember, err := h.chat.IsUserInChat(input.ChatID, username)
-		if err != nil {
-			log.Println("error: ", err)
-			continue
-		} else if !isMember {
-			log.Println(username, "tried to send message to chat they aren't in.")
-			continue
+		if input.Type == "message" {
+			payload := input.Payload
+			isMember, err := h.chat.IsUserInChat(payload.ChatID, username)
+			if err != nil {
+				log.Println("error: ", err)
+				continue
+			} else if !isMember {
+				log.Println(username, "tried to send message to chat they aren't in.")
+				continue
+			}
+
+			savedMsg, err := h.message.Create(username, payload.ChatID, payload.Content)
+			if err != nil {
+				log.Println("error: ", err)
+				continue
+			}
+
+			members, _, _, err := h.chat.GetChatMembers(payload.ChatID, -1, 0)
+			if err != nil {
+				log.Println("error: ", err)
+			} else {
+				hubMsg := domain.HubMessage{Message: *savedMsg, To: members}
+				h.hub.Mutex.Lock()
+				h.hub.Broadcast <- hubMsg
+				h.hub.Mutex.Unlock()
+			}
 		}
 
-		savedMsg, err := h.message.Create(username, input.ChatID, input.Content)
-		if err != nil {
-			log.Println("error: ", err)
-			continue
-		}
-
-		members, _, _, err := h.chat.GetChatMembers(input.ChatID, -1, 0)
-		if err != nil {
-			log.Println("error: ", err)
-		} else {
-			hubMsg := domain.HubMessage{Message: *savedMsg, To: members}
-			h.hub.Mutex.Lock()
-			h.hub.Broadcast <- hubMsg
-			h.hub.Mutex.Unlock()
-		}
 	}
 }
 
