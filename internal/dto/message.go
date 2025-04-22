@@ -13,7 +13,6 @@ type MessageResponse struct {
 }
 
 type MessageRequest struct {
-	Type    string    `json:"type"`
 	ChatID  uuid.UUID `json:"chat_id"`
 	Content string    `json:"content"`
 }
