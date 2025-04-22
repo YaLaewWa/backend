@@ -16,7 +16,7 @@ func (s *Server) initRoutes() {
 }
 
 func (s *Server) initSocket() {
-	s.app.Use("/ws", s.middleware.Auth, s.middleware.Websocket)
+	s.app.Use("/ws", s.middleware.Websocket)
 	s.app.Get("/ws", websocket.New(s.handler.socketMessageHandler.InitConnection))
 
 }

@@ -57,5 +57,22 @@ func (a *AuthMiddleware) Websocket(c *fiber.Ctx) error {
 	if !websocket.IsWebSocketUpgrade(c) {
 		return apperror.UpgradeRequiredError(errors.New("your request is not intended for a websocket upgrade"), "your request is not intended for a websocket upgrade")
 	}
+
+	token := c.Query("token")
+	claims, err := a.jwtUtils.DecodeJWT(token)
+	if err != nil {
+		return apperror.UnauthorizedError(err, "Invalid token")
+	}
+
+	username := claims.Username
+
+	user, err := a.userRepo.GetUserByUsername(username)
+	if err != nil {
+		return apperror.UnauthorizedError(err, "User not found")
+	}
+
+	c.Locals("username", username)
+	c.Locals("user", user)
+
 	return c.Next()
 }
