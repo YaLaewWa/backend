@@ -16,9 +16,19 @@ type MessageQueue struct {
 }
 
 func (m *MessageQueue) ToDTO() dto.QueueResponse {
+	name := m.Chat.Name
+	if !m.Chat.IsGroup {
+		if name == m.Chat.Members[0].Username {
+			name = m.Chat.Members[1].Username
+		} else {
+			name = m.Chat.Members[0].Username
+		}
+	}
+	dtoChat := m.Chat.ToDTO()
+	dtoChat.Name = name
 	return dto.QueueResponse{
 		Username:  m.Username,
-		Chat:      m.Chat.ToDTO(),
+		Chat:      dtoChat,
 		Count:     m.Count,
 		UpdatedAt: m.Timestamp,
 	}
