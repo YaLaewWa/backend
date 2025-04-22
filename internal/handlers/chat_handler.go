@@ -24,6 +24,23 @@ func NewChatHandler(service ports.ChatService, queueService ports.MessageQueueSe
 	return &ChatHandler{service: service, queueService: queueService, hub: hub}
 }
 
+func (h *ChatHandler) broadcastSideBar(username string) error {
+	payload := make(map[string]any)
+	queues, err := h.queueService.Get(username)
+	if err != nil {
+		return err
+	}
+	var queueDTO []dto.QueueResponse
+	for _, o := range queues {
+		queueDTO = append(queueDTO, o.ToDTO())
+	}
+	payload["queue"] = queueDTO
+	h.hub.BrodcastMutex.Lock()
+	h.hub.Broadcast <- domain.HubMessage{Type: "sidebar_update", Payload: payload, To: []domain.User{{Username: username}}}
+	h.hub.BrodcastMutex.Unlock()
+	return nil
+}
+
 func (h *ChatHandler) JoinChat(c *fiber.Ctx) error {
 	username := c.Locals("username").(string)
 	id := c.Params("id")
@@ -47,20 +64,10 @@ func (h *ChatHandler) JoinChat(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	payload = make(map[string]any)
-	queues, err := h.queueService.Get(username)
+	err = h.broadcastSideBar(username)
 	if err != nil {
 		return err
 	}
-	var queueDTO []dto.QueueResponse
-	for _, o := range queues {
-		queueDTO = append(queueDTO, o.ToDTO())
-	}
-	payload["queue"] = queueDTO
-	h.hub.BrodcastMutex.Lock()
-	h.hub.Broadcast <- domain.HubMessage{Type: "sidebar_update", Payload: payload, To: []domain.User{{Username: username}}}
-	h.hub.BrodcastMutex.Unlock()
-
 	return c.Status(fiber.StatusOK).JSON(dto.Success(chat.ToDTO()))
 }
 
@@ -125,19 +132,10 @@ func (h *ChatHandler) createChat(c *fiber.Ctx, isGroup bool) (*domain.Chat, erro
 		if err != nil {
 			return nil, err
 		}
-		payload := make(map[string]any)
-		queues, err := h.queueService.Get(name)
+		err = h.broadcastSideBar(name)
 		if err != nil {
 			return nil, err
 		}
-		var queueDTO []dto.QueueResponse
-		for _, o := range queues {
-			queueDTO = append(queueDTO, o.ToDTO())
-		}
-		payload["queue"] = queueDTO
-		h.hub.BrodcastMutex.Lock()
-		h.hub.Broadcast <- domain.HubMessage{Type: "sidebar_update", Payload: payload, To: []domain.User{{Username: username}}}
-		h.hub.BrodcastMutex.Unlock()
 	}
 
 	return chat, nil
@@ -203,10 +201,10 @@ func (h *ChatHandler) GetGroupChats(c *fiber.Ctx) error {
 func (h *ChatHandler) HavePrivateChat(c *fiber.Ctx) error {
 	username1 := c.Params("username1")
 	username2 := c.Params("username2")
-	status, err := h.service.HavePrivateChat(username1, username2)
+	status, id, err := h.service.HavePrivateChat(username1, username2)
 	if err != nil {
 		return err
 	}
 
-	return c.Status(fiber.StatusOK).JSON(dto.Success(map[string]any{"status": status}))
+	return c.Status(fiber.StatusOK).JSON(dto.Success(map[string]any{"status": status, "id": id}))
 }
