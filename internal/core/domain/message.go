@@ -22,6 +22,7 @@ func (m *Message) ToDTO() dto.MessageResponse {
 			CreateAt: m.CreateAt,
 			Username: m.Username,
 			Content:  m.Content,
+			ChatID:   m.ChatID,
 		},
 	}
 }
