@@ -17,7 +17,7 @@ func NewChatService(repo ports.ChatRepository) ports.ChatService {
 	return &ChatService{repo: repo}
 }
 
-func (c *ChatService) AddUserToChat(chatID uuid.UUID, userID uuid.UUID) (*domain.Chat, error) {
+func (c *ChatService) AddUserToChat(chatID uuid.UUID, username string) (*domain.Chat, error) {
 	// Check if chat exist or not
 	chat, err := c.repo.GetByID(chatID)
 	if err != nil {
@@ -30,7 +30,7 @@ func (c *ChatService) AddUserToChat(chatID uuid.UUID, userID uuid.UUID) (*domain
 	}
 
 	// Check if user is already in the chat or not
-	isMember, err := c.repo.IsUserInChat(chatID, userID)
+	isMember, err := c.repo.IsUserInChat(chatID, username)
 	if err != nil {
 		return nil, err
 	}
@@ -38,23 +38,23 @@ func (c *ChatService) AddUserToChat(chatID uuid.UUID, userID uuid.UUID) (*domain
 		return nil, apperror.ConflictError(errors.New("conflict"), "You are already in this chat")
 	}
 
-	if err = c.repo.AddUserToChat(chatID, userID); err != nil {
+	if err = c.repo.AddUserToChat(chatID, username); err != nil {
 		return nil, err
 	}
 
 	return c.repo.GetByID(chatID)
 }
 
-func (c *ChatService) CreateChat(name string, userIDs []uuid.UUID, isGroup bool) (*domain.Chat, error) {
-	return c.repo.Create(name, userIDs, isGroup)
+func (c *ChatService) CreateChat(name string, usernames []string, isGroup bool) (*domain.Chat, error) {
+	return c.repo.Create(name, usernames, isGroup)
 }
 
-func (c *ChatService) GetChatsByUserID(userID uuid.UUID, limit int, page int) ([]domain.Chat, int, int, error) {
+func (c *ChatService) GetChatsByUsername(username string, limit int, page int) ([]domain.Chat, int, int, error) {
 	if limit <= 0 {
-		chats, err := c.repo.GetAllChatsByUserID(userID)
+		chats, err := c.repo.GetAllChatsByUsername(username)
 		return chats, 1, len(chats), err
 	}
-	return c.repo.GetPaginatedChatsByUserID(userID, limit, page)
+	return c.repo.GetPaginatedChatsByUsername(username, limit, page)
 }
 
 func (c *ChatService) GetChatMembers(chatID uuid.UUID, limit int, page int) ([]domain.User, int, int, error) {
@@ -65,6 +65,6 @@ func (c *ChatService) GetChatMembers(chatID uuid.UUID, limit int, page int) ([]d
 	return c.repo.GetPaginatedChatMembers(chatID, limit, page)
 }
 
-func (c *ChatService) IsUserInChat(chatID, userID uuid.UUID) (bool, error) {
-	return c.repo.IsUserInChat(chatID, userID)
+func (c *ChatService) IsUserInChat(chatID uuid.UUID, username string) (bool, error) {
+	return c.repo.IsUserInChat(chatID, username)
 }

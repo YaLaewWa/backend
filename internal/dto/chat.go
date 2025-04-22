@@ -10,6 +10,6 @@ type ChatResponse struct {
 }
 
 type CreateChatRequest struct {
-	Name    string      `json:"name"`
-	UserIDs []uuid.UUID `json:"user_ids" validate:"required,min=1"`
+	Name      string   `json:"name"`
+	Usernames []string `json:"usernames" validate:"required,min=1"`
 }

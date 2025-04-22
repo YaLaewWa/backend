@@ -10,7 +10,6 @@ import (
 
 	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
 type ChatHandler struct {
@@ -22,14 +21,14 @@ func NewChatHandler(service ports.ChatService) ports.ChatHandler {
 }
 
 func (h *ChatHandler) JoinChat(c *fiber.Ctx) error {
-	userID := c.Locals("userID").(uuid.UUID)
+	username := c.Locals("username").(string)
 	id := c.Params("id")
 	chatID, err := util.ParseIdParam(id)
 	if err != nil {
 		return err
 	}
 
-	chat, err := h.service.AddUserToChat(chatID, userID)
+	chat, err := h.service.AddUserToChat(chatID, username)
 	if err != nil {
 		return err
 	}
@@ -57,17 +56,17 @@ func (h *ChatHandler) createChat(c *fiber.Ctx, isGroup bool) error {
 	}
 
 	// Check if user creating chat including themselves or not
-	userID := c.Locals("userID").(uuid.UUID)
-	if !slices.Contains(req.UserIDs, userID) {
+	username := c.Locals("username").(string)
+	if !slices.Contains(req.Usernames, username) {
 		return apperror.UnprocessableEntityError(errors.New("validation failed"), "You can not create chat without you in it")
 	}
 
 	// Not sure if will have user amount check in group chat yet or not
-	if !isGroup && len(req.UserIDs) != 2 {
+	if !isGroup && len(req.Usernames) != 2 {
 		return apperror.UnprocessableEntityError(errors.New("validation failed"), "You can not create direct message chat with less or more than 2 users")
 	}
 
-	chat, err := h.service.CreateChat(req.Name, req.UserIDs, isGroup)
+	chat, err := h.service.CreateChat(req.Name, req.Usernames, isGroup)
 	if err != nil {
 		return err
 	}
@@ -76,10 +75,10 @@ func (h *ChatHandler) createChat(c *fiber.Ctx, isGroup bool) error {
 }
 
 func (h *ChatHandler) GetChats(c *fiber.Ctx) error {
-	userID := c.Locals("userID").(uuid.UUID)
+	username := c.Locals("username").(string)
 	page, limit := util.PaginationQuery(c)
 
-	chats, totalPages, totalRows, err := h.service.GetChatsByUserID(userID, limit, page)
+	chats, totalPages, totalRows, err := h.service.GetChatsByUsername(username, limit, page)
 	if err != nil {
 		return err
 	}

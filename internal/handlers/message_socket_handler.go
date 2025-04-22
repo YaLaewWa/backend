@@ -11,7 +11,6 @@ import (
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
 type MessageSocketHandler struct {
@@ -113,9 +112,9 @@ func (h MessageSocketHandler) GetByChatID(c *fiber.Ctx) error {
 
 	page, limit := util.PaginationQuery(c)
 
-	userID := c.Locals("userID").(uuid.UUID)
+	username := c.Locals("username").(string)
 
-	msgs, totalPages, totalRows, err := h.message.GetByChatID(chatID, limit, page, userID)
+	msgs, totalPages, totalRows, err := h.message.GetByChatID(chatID, limit, page, username)
 	if err != nil {
 		return err
 	}
