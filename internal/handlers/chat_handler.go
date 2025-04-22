@@ -112,6 +112,19 @@ func (h *ChatHandler) createChat(c *fiber.Ctx, isGroup bool) (*domain.Chat, erro
 		if err != nil {
 			return nil, err
 		}
+		payload := make(map[string]any)
+		queues, err := h.queueService.Get(name)
+		if err != nil {
+			return nil, err
+		}
+		var queueDTO []dto.QueueResponse
+		for _, o := range queues {
+			queueDTO = append(queueDTO, o.ToDTO())
+		}
+		payload["queue"] = queueDTO
+		h.hub.BrodcastMutex.Lock()
+		h.hub.Broadcast <- domain.HubMessage{Type: "sidebar_update", Payload: payload, To: []domain.User{{Username: username}}}
+		h.hub.BrodcastMutex.Unlock()
 	}
 
 	return chat, nil
