@@ -8,11 +8,11 @@ import (
 )
 
 type MessageQueue struct {
-	Username  string `gorm:"primaryKey" validate:"required"`
-	ChatID    uuid.UUID
+	Username  string    `gorm:"primaryKey" validate:"required"`
+	ChatID    uuid.UUID `gorm:"primaryKey" validate:"required"`
 	Chat      Chat
 	Count     int
-	UpdatedAt time.Time
+	Timestamp time.Time
 }
 
 func (m *MessageQueue) ToDTO() dto.QueueResponse {
@@ -20,6 +20,6 @@ func (m *MessageQueue) ToDTO() dto.QueueResponse {
 		Username:  m.Username,
 		Chat:      m.Chat.ToDTO(),
 		Count:     m.Count,
-		UpdatedAt: m.UpdatedAt,
+		UpdatedAt: m.Timestamp,
 	}
 }

@@ -27,7 +27,7 @@ func (c *MessageQueueRepository) Create(queue *domain.MessageQueue) error {
 func (c *MessageQueueRepository) GetAll(username string) ([]domain.MessageQueue, error) {
 	var queue []domain.MessageQueue
 	if err := c.db.Model(queue).Preload("Chat").Preload("Chat.Members").Where("username = ?", username).Find(&queue).Error; err != nil {
-		return nil, err
+		return nil, apperror.InternalServerError(err, "Failed to get queue")
 	}
 	return queue, nil
 }
@@ -36,7 +36,7 @@ func (c *MessageQueueRepository) GetQueue(username string, chatID uuid.UUID) (*d
 	var queue *domain.MessageQueue
 
 	if err := c.db.Where(&domain.MessageQueue{Username: username, ChatID: chatID}).First(&queue).Error; err != nil {
-		return nil, err
+		return nil, apperror.InternalServerError(err, "Failed to get queue")
 	}
 	return queue, nil
 }

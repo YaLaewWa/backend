@@ -3,6 +3,7 @@ package services
 import (
 	"socket/internal/core/domain"
 	"socket/internal/core/ports"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -16,7 +17,7 @@ func NewMessageQueueService(repo ports.MessageQueueRepository) ports.MessageQueu
 }
 
 func (c *MessageQueueService) Create(username string, chatID uuid.UUID) error {
-	return c.repo.Create(&domain.MessageQueue{Username: username, ChatID: chatID, Count: 0})
+	return c.repo.Create(&domain.MessageQueue{Username: username, ChatID: chatID, Count: 0, Timestamp: time.Now()})
 }
 
 func (c *MessageQueueService) Get(username string) ([]domain.MessageQueue, error) {
@@ -29,6 +30,7 @@ func (c *MessageQueueService) ReceiveMessage(username string, chatID uuid.UUID) 
 		return err
 	}
 	queue.Count += 1
+	queue.Timestamp = time.Now()
 	err = c.repo.Update(queue)
 	if err != nil {
 		return err
