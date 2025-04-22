@@ -36,6 +36,11 @@ func (h *ChatHandler) JoinChat(c *fiber.Ctx) error {
 		return err
 	}
 
+	payload := make(map[string]any)
+	payload["chatID"] = chat.ID
+	payload["joiner"] = username
+	h.hub.Broadcast <- domain.HubMessage{Type: "new_user_group", Payload: payload}
+
 	return c.Status(fiber.StatusOK).JSON(dto.Success(chat.ToDTO()))
 }
 
@@ -53,10 +58,10 @@ func (h *ChatHandler) CreateGroupChat(c *fiber.Ctx) error {
 		return err
 	}
 
-	user := c.Locals("user").(*domain.User)
+	username := c.Locals("username").(string)
 	payload := make(map[string]any)
 	payload["chat"] = chat
-	payload["creator"] = user.Username
+	payload["creator"] = username
 	h.hub.Broadcast <- domain.HubMessage{Type: "new_group", Payload: payload}
 
 	return c.Status(fiber.StatusCreated).JSON(dto.Success(chat.ToDTO()))

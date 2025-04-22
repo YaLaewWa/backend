@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"log"
 	"socket/internal/core/domain"
+	"socket/internal/dto"
+
+	"github.com/google/uuid"
 )
 
 type RegisterPayload struct {
@@ -56,6 +59,18 @@ func (h *Hub) Run() {
 					group := payload["chat"].(*domain.Chat)
 					creator := payload["creator"].(string)
 					data, err := json.Marshal(group.ToSocketDTO(username == creator))
+					if err != nil {
+						log.Println("error:", err)
+					} else {
+						h.Clients[username] <- data
+					}
+				}
+			} else if msg.Type == "new_user_group" {
+				for username := range h.Clients {
+					payload := msg.Payload.(map[string]any)
+					chatID := payload["chatID"].(uuid.UUID)
+					joiner := payload["joiner"].(string)
+					data, err := json.Marshal(dto.GetJoinSocketDTO(chatID, joiner))
 					if err != nil {
 						log.Println("error:", err)
 					} else {
