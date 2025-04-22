@@ -15,8 +15,8 @@ type Handler struct {
 func (s *Server) initHandler() {
 	userHandler := handlers.NewUserHandler(s.service.userService)
 	socketMessageHandler := handlers.NewMessageSocketHandler(s.messageHub, s.service.messageService, s.service.chatService)
-	chatHandler := handlers.NewChatHandler(s.service.chatService, s.service.messageQueueService)
 	messageQueueHandler := handlers.NewMessageQueueHandler(s.service.messageQueueService)
+	chatHandler := handlers.NewChatHandler(s.service.chatService, s.service.messageQueueService, s.messageHub)
 	s.handler = &Handler{
 		userHandler:          userHandler,
 		socketMessageHandler: socketMessageHandler,

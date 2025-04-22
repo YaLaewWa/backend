@@ -3,8 +3,10 @@ package handlers
 import (
 	"errors"
 	"slices"
+	"socket/internal/core/domain"
 	"socket/internal/core/ports"
 	"socket/internal/dto"
+	"socket/internal/hub"
 	"socket/pkg/apperror"
 	"socket/pkg/util"
 
@@ -15,10 +17,11 @@ import (
 type ChatHandler struct {
 	service      ports.ChatService
 	queueService ports.MessageQueueService
+	hub          *hub.Hub
 }
 
-func NewChatHandler(service ports.ChatService, queueService ports.MessageQueueService) ports.ChatHandler {
-	return &ChatHandler{service: service, queueService: queueService}
+func NewChatHandler(service ports.ChatService, queueService ports.MessageQueueService, hub *hub.Hub) ports.ChatHandler {
+	return &ChatHandler{service: service, queueService: queueService, hub: hub}
 }
 
 func (h *ChatHandler) JoinChat(c *fiber.Ctx) error {
@@ -34,6 +37,10 @@ func (h *ChatHandler) JoinChat(c *fiber.Ctx) error {
 		return err
 	}
 
+	payload := make(map[string]any)
+	payload["chatID"] = chat.ID
+	payload["joiner"] = username
+	h.hub.Broadcast <- domain.HubMessage{Type: "new_user_group", Payload: payload}
 	err = h.queueService.Create(username, chatID)
 	if err != nil {
 		return err
@@ -43,47 +50,63 @@ func (h *ChatHandler) JoinChat(c *fiber.Ctx) error {
 }
 
 func (h *ChatHandler) CreateDirectChat(c *fiber.Ctx) error {
-	return h.createChat(c, false)
+	chat, err := h.createChat(c, false)
+	if err != nil {
+		return err
+	}
+	return c.Status(fiber.StatusCreated).JSON(dto.Success(chat.ToDTO()))
 }
 
 func (h *ChatHandler) CreateGroupChat(c *fiber.Ctx) error {
-	return h.createChat(c, true)
+	chat, err := h.createChat(c, true)
+	if err != nil {
+		return err
+	}
+
+	username := c.Locals("username").(string)
+	payload := make(map[string]any)
+	payload["chat"] = chat
+	payload["creator"] = username
+	h.hub.Broadcast <- domain.HubMessage{Type: "new_group", Payload: payload}
+
+	return c.Status(fiber.StatusCreated).JSON(dto.Success(chat.ToDTO()))
 }
 
-func (h *ChatHandler) createChat(c *fiber.Ctx, isGroup bool) error {
+func (h *ChatHandler) createChat(c *fiber.Ctx, isGroup bool) (*domain.Chat, error) {
 	req := new(dto.CreateChatRequest)
 	if err := c.BodyParser(req); err != nil {
-		return apperror.BadRequestError(err, "Invalid input")
+		return nil, apperror.BadRequestError(err, "Invalid input")
 	}
 
 	validate := validator.New()
 	if err := validate.Struct(req); err != nil {
-		return apperror.UnprocessableEntityError(err, "Validation failed")
+		return nil, apperror.UnprocessableEntityError(err, "Validation failed")
 	}
 
 	// Check if user creating chat including themselves or not
 	username := c.Locals("username").(string)
 	if !slices.Contains(req.Usernames, username) {
-		return apperror.UnprocessableEntityError(errors.New("validation failed"), "You can not create chat without you in it")
+		return nil, apperror.UnprocessableEntityError(errors.New("validation failed"), "You can not create chat without you in it")
 	}
 
 	// Not sure if will have user amount check in group chat yet or not
 	if !isGroup && len(req.Usernames) != 2 {
-		return apperror.UnprocessableEntityError(errors.New("validation failed"), "You can not create direct message chat with less or more than 2 users")
+		return nil, apperror.UnprocessableEntityError(errors.New("validation failed"), "You can not create direct message chat with less or more than 2 users")
 	}
 
 	chat, err := h.service.CreateChat(req.Name, req.Usernames, isGroup)
 	if err != nil {
-		return err
+		return nil, err
 	}
+
 	for _, name := range req.Usernames {
 		err = h.queueService.Create(name, chat.ID)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(dto.Success(chat.ToDTO()))
+	return chat, nil
 }
 
 func (h *ChatHandler) GetChats(c *fiber.Ctx) error {
