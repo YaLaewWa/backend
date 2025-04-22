@@ -61,7 +61,6 @@ func (h *ChatHandler) createChat(c *fiber.Ctx, isGroup bool) error {
 		return apperror.UnprocessableEntityError(errors.New("validation failed"), "You can not create chat without you in it")
 	}
 
-	// Not sure if will have user amount check in group chat yet or not
 	if !isGroup {
 		if len(req.Usernames) != 2 {
 			return apperror.UnprocessableEntityError(errors.New("validation failed"), "You can not create direct message chat with less or more than 2 users")
