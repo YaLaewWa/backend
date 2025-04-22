@@ -64,3 +64,7 @@ func (c *ChatService) GetChatMembers(chatID uuid.UUID, limit int, page int) ([]d
 	}
 	return c.repo.GetPaginatedChatMembers(chatID, limit, page)
 }
+
+func (c *ChatService) IsUserInChat(chatID, userID uuid.UUID) (bool, error) {
+	return c.repo.IsUserInChat(chatID, userID)
+}

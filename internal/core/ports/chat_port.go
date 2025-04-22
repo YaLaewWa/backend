@@ -23,6 +23,7 @@ type ChatService interface {
 	GetChatMembers(chatID uuid.UUID, limit int, page int) ([]domain.User, int, int, error)
 	GetChatsByUserID(userID uuid.UUID, limit int, page int) ([]domain.Chat, int, int, error)
 	AddUserToChat(chatID uuid.UUID, userID uuid.UUID) (*domain.Chat, error)
+	IsUserInChat(chatID, userID uuid.UUID) (bool, error)
 }
 
 type ChatHandler interface {
