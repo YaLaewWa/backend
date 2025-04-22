@@ -129,6 +129,13 @@ func (h *ChatHandler) GetChats(c *fiber.Ctx) error {
 	res := make([]dto.ChatResponse, len(chats))
 	for i, chat := range chats {
 		res[i] = chat.ToDTO()
+		if !res[i].IsGroup {
+			if res[i].Members[0].Username == username {
+				res[i].Name = res[i].Members[1].Username
+			} else {
+				res[i].Name = res[i].Members[0].Username
+			}
+		}
 	}
 
 	return c.Status(fiber.StatusOK).JSON(dto.SuccessPagination(res, page, totalPages, limit, totalRows))
