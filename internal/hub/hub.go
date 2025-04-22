@@ -20,18 +20,16 @@ type Hub struct {
 	Register      chan *RegisterPayload
 	Unregister    chan string
 	Broadcast     chan domain.HubMessage
-	BrodcastMutex *sync.Mutex
-	ClientMutex   *sync.Mutex
+	BrodcastMutex sync.Mutex
+	ClientMutex   sync.Mutex
 }
 
 func NewHub() *Hub {
 	return &Hub{
-		Clients:       make(map[string]chan []byte),
-		Register:      make(chan *RegisterPayload, 256),
-		Unregister:    make(chan string, 256),
-		Broadcast:     make(chan domain.HubMessage, 256),
-		BrodcastMutex: &sync.Mutex{},
-		ClientMutex:   &sync.Mutex{},
+		Clients:    make(map[string]chan []byte),
+		Register:   make(chan *RegisterPayload, 256),
+		Unregister: make(chan string, 256),
+		Broadcast:  make(chan domain.HubMessage, 256),
 	}
 }
 
