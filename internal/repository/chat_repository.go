@@ -162,3 +162,21 @@ func (c *ChatRepository) preloadMembers(res []domain.ChatWithMembership) ([]dto.
 
 	return groups, nil
 }
+
+func (c *ChatRepository) GetDMChat(usernames []string) (*domain.Chat, error) {
+	chat := new(domain.Chat)
+
+	query := c.db.Table("chat_members").Select("chat_id").Where("user_username IN ?", usernames).
+		Group("chat_id").Having("COUNT(DISTINCT user_username) = 2")
+
+	err := c.db.Where("id IN (?) AND is_group = false", query).Preload("Members").First(chat).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			return nil, apperror.InternalServerError(err, "Failed to retrieve chat.")
+		}
+	}
+
+	return chat, nil
+}

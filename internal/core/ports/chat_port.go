@@ -19,6 +19,7 @@ type ChatRepository interface {
 	IsUserInChat(chatID uuid.UUID, username string) (bool, error)
 	GetPaginatedGroupChats(username string, limit int, page int) ([]dto.ChatResponse, int, int, error)
 	GetAllGroupChats(username string) ([]dto.ChatResponse, error)
+	GetDMChat(usernames []string) (*domain.Chat, error)
 }
 
 type ChatService interface {
