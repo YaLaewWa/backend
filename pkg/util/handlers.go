@@ -13,12 +13,7 @@ func PaginationQuery(c *fiber.Ctx) (int, int) {
 		page = 1
 	}
 
-	limit := c.QueryInt("limit", 10)
-	if limit <= 0 {
-		limit = 10
-	} else if limit > 50 {
-		limit = 50
-	}
+	limit := min(c.QueryInt("limit", 10), 50)
 
 	return page, limit
 }
